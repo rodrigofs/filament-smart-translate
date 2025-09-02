@@ -1,0 +1,66 @@
+{
+    "name": "rodrigofs/filament-auto-translation",
+    "description": "",
+    "license": "proprietary",
+    "keywords": [
+        "Laravel",
+        "Filament"
+    ],
+    "homepage": "https://github.com/rodrigofs",
+    "authors": [
+        {
+            "role": "Developer",
+            "name": "Rodrigo Fernandes",
+            "email": "rodrigo-delphi@live.com",
+            "homepage": "https://github.com/rodrigofs"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^v4.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.22",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
+        "orchestra/testbench": "^9.0",
+        "mockery/mockery": "^1.6",
+        "larastan/larastan": "^v3.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Rodrigofs\\FilamentAutoTranslate\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Rodrigofs\\FilamentAutoTranslate\\TranslationServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "pint": "vendor/bin/pint",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
+        "quality": [
+            "@pint",
+            "@phpstan",
+            "@test"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
