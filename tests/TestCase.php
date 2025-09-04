@@ -59,9 +59,6 @@ class TestCase extends Orchestra
                 'log_missing_translations' => false,
                 'log_fallback_usage' => false,
             ],
-            'cache' => [
-                'enabled' => false, // Disable for tests
-            ],
             'fallback_strategies' => [
                 'humanize' => fn ($key) => \Illuminate\Support\Str::title(\Illuminate\Support\Str::snake($key, ' ')),
                 'original' => fn ($key) => $key,
