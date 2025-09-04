@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
 use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
+use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
 use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
 
 beforeEach(function () {

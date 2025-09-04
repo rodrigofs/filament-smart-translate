@@ -88,7 +88,7 @@ For Resources, Pages, and Clusters to have translation, you must add the appropr
 
 ```php
 // Resources
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
+use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -96,7 +96,6 @@ class UserResource extends Resource
 }
 
 // Pages  
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
 
 class Settings extends Page
 {
@@ -104,7 +103,6 @@ class Settings extends Page
 }
 
 // Clusters
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
 
 class UserManagement extends Cluster
 {
@@ -150,8 +148,7 @@ To enable translation for Resources, Pages, and Clusters, you **must** add the a
 
 namespace App\Filament\Resources;
 
-use Filament\Resources\Resource;
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
+use Filament\Resources\Resource;use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -377,11 +374,7 @@ With `pt_BR` locale and proper translations, the same resource automatically sho
 
 namespace App\Filament\Resources;
 
-use App\Models\User;
-use Filament\Forms;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
+use App\Models\User;use Filament\Forms;use Filament\Resources\Resource;use Filament\Tables;use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -526,13 +519,11 @@ This is expected behavior. These components **require traits** to enable transla
 
 ```php
 // Add to your Resource
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
 
 // Add to your Page  
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
 
 // Add to your Cluster
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
+
 ```
 
 Run `php artisan filament-auto-translation:status` to see which files need traits.

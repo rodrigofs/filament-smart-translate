@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Resource\Concerns;
+namespace Rodrigofs\FilamentAutoTranslate\Resource;
 
 use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
 use UnitEnum;

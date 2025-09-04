@@ -3,7 +3,7 @@
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Resource\Concerns\ResourceTranslateble;
+use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
 use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
 
 beforeEach(function () {
