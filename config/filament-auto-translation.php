@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -51,9 +49,9 @@ return [
     | Define how to handle missing translations
     */
     'fallback_strategies' => [
-        'humanize' => fn ($key) => Str::title(Str::snake($key, ' ')),
-        'original' => fn ($key) => $key,
-        'title_case' => fn ($key) => ucwords($key),
+        'humanize' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\HumanizeStrategy::class,
+        'original' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\OriginalStrategy::class,
+        'title_case' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\TitleCaseStrategy::class,
         'custom' => null, // User can define custom closure
     ],
 
