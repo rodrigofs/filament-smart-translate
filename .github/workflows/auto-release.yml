@@ -43,7 +43,7 @@ jobs:
         run: echo "is_prerelease=$(if [[ ${{ github.ref_name }} =~ -[a-zA-Z] ]]; then echo true; else echo false; fi)" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
