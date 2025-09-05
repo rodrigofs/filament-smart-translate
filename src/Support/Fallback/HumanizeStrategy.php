@@ -3,16 +3,11 @@
 namespace Rodrigofs\FilamentAutoTranslate\Support\Fallback;
 
 use Illuminate\Support\Str;
-use Stringable;
 
-final readonly class HumanizeStrategy implements Stringable
+final readonly class HumanizeStrategy implements FallbackStrategyInterface
 {
-    public function __construct(
-        private string $key
-    ) {}
-
-    public function __toString()
+    public function apply(string $key): string
     {
-        return Str::title(Str::snake($this->key, ' '));
+        return Str::title(Str::snake($key, ' '));
     }
 }

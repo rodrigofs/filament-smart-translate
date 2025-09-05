@@ -4,7 +4,7 @@ namespace Rodrigofs\FilamentAutoTranslate;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
+use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyManager;
 
 class TranslationHelper
 {
@@ -46,32 +46,12 @@ class TranslationHelper
 
         // Apply fallback strategy
         $fallbackStrategy = ($componentConfig['fallback_strategy'] ?? null) ?: 'humanize';
-        $fallbackResult = static::applyFallbackStrategy($key, $fallbackStrategy);
+        $fallbackResult = FallbackStrategyManager::apply($key, $fallbackStrategy);
 
         // Log missing translation if debug is enabled
         static::logMissingTranslation($key, $component, $fallbackStrategy);
 
         return $fallbackResult;
-    }
-
-    /**
-     * Apply fallback strategy
-     */
-    protected static function applyFallbackStrategy(string $key, string $strategy): string
-    {
-        $strategies = Config::get('filament-auto-translation.fallback_strategies', []);
-
-        if (isset($strategies[$strategy]) && is_callable($strategies[$strategy])) {
-            return $strategies[$strategy]($key);
-        }
-
-        // Default fallback strategies
-        return match ($strategy) {
-            'humanize' => Str::title(Str::snake($key, ' ')),
-            'title_case' => ucwords($key),
-            'original' => $key,
-            default => Str::title(Str::snake($key, ' ')),
-        };
     }
 
     /**

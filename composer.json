@@ -1,10 +1,17 @@
 {
     "name": "rodrigofs/filament-auto-translation",
-    "description": "",
-    "license": "proprietary",
+    "description": "A comprehensive Laravel package for automatic translation support in Filament v4 applications with advanced fallback strategies.",
+    "license": "MIT",
     "keywords": [
         "Laravel",
-        "Filament"
+        "Filament",
+        "translation",
+        "i18n",
+        "localization",
+        "multilingual",
+        "auto-translation",
+        "fallback-strategies",
+        "php"
     ],
     "homepage": "https://github.com/rodrigofs",
     "authors": [
@@ -47,7 +54,7 @@
     "scripts": {
         "test": "vendor/bin/pest",
         "pint": "vendor/bin/pint",
-        "test-coverage": "vendor/bin/pest --coverage",
+        "test-coverage": "php -d xdebug.mode=debug,coverage vendor/bin/pest --coverage",
         "phpstan": "vendor/bin/phpstan analyse --memory-limit=2G",
         "quality": [
             "@pint",

@@ -46,13 +46,11 @@ return [
     |--------------------------------------------------------------------------
     | Fallback Strategies
     |--------------------------------------------------------------------------
-    | Define how to handle missing translations
+    | Define custom fallback strategies. Built-in strategies (humanize,
+    | original, title_case) are available by default.
     */
     'fallback_strategies' => [
-        'humanize' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\HumanizeStrategy::class,
-        'original' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\OriginalStrategy::class,
-        'title_case' => Rodrigofs\FilamentAutoTranslate\Support\Fallback\TitleCaseStrategy::class,
-        'custom' => null, // User can define custom closure
+        // 'custom_strategy' => \App\Strategies\CustomFallbackStrategy::class,
     ],
 
     /*

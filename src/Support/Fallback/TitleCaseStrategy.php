@@ -2,16 +2,10 @@
 
 namespace Rodrigofs\FilamentAutoTranslate\Support\Fallback;
 
-use Stringable;
-
-final readonly class TitleCaseStrategy implements Stringable
+final readonly class TitleCaseStrategy implements FallbackStrategyInterface
 {
-    public function __construct(
-        protected string $key,
-    ) {}
-
-    public function __toString()
+    public function apply(string $key): string
     {
-        return ucwords($this->key);
+        return ucwords($key);
     }
 }

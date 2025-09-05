@@ -2,16 +2,10 @@
 
 namespace Rodrigofs\FilamentAutoTranslate\Support\Fallback;
 
-use Stringable;
-
-final readonly class OriginalStrategy implements Stringable
+final readonly class OriginalStrategy implements FallbackStrategyInterface
 {
-    public function __construct(
-        protected string $key,
-    ) {}
-
-    public function __toString()
+    public function apply(string $key): string
     {
-        return $this->key;
+        return $key;
     }
 }
