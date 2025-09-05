@@ -1,8 +1,8 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Page;
+namespace Rodrigofs\FilamentSmartTranslate\Page;
 
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 use UnitEnum;
 
 /**

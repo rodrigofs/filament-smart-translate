@@ -4,12 +4,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Navigation\NavigationItem;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
-use Rodrigofs\FilamentAutoTranslate\TranslationServiceProvider;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\TranslationServiceProvider;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -47,8 +47,8 @@ it('translates different component types', function () {
 });
 
 it('loads configuration correctly', function () {
-    expect(Config::get('filament-auto-translation.enabled'))->toBeTrue();
-    expect(Config::get('filament-auto-translation.components'))->toBeArray();
+    expect(Config::get('filament-smart-translate.enabled'))->toBeTrue();
+    expect(Config::get('filament-smart-translate.components'))->toBeArray();
 });
 
 it('handles navigation group translation', function () {
@@ -59,15 +59,15 @@ it('handles navigation group translation', function () {
 
 it('supports multiple fallback strategies', function () {
     // Test original strategy
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'original');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'original');
     $result1 = TranslationHelper::translateWithFallback('unknown_key', 'resource_labels');
 
     // Test humanize strategy
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'humanize');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
     $result2 = TranslationHelper::translateWithFallback('user_profile', 'resource_labels');
 
     // Test title_case strategy
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'title_case');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'title_case');
     $result3 = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
 
     expect($result1)->toBe('unknown_key');

@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -22,7 +22,7 @@ it('translates existing keys', function () {
 });
 
 it('respects disabled setting', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
 
@@ -30,7 +30,7 @@ it('respects disabled setting', function () {
 });
 
 it('uses fallback strategies', function () {
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'title_case');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'title_case');
 
     $result = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
 
@@ -50,7 +50,7 @@ it('uses original fallback by default', function () {
 });
 
 it('applies humanize fallback strategy', function () {
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'humanize');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
 
     $result = TranslationHelper::translateWithFallback('user_profile_settings', 'resource_labels');
 
@@ -58,7 +58,7 @@ it('applies humanize fallback strategy', function () {
 });
 
 it('respects component disabled setting', function () {
-    Config::set('filament-auto-translation.components.resource_labels.enabled', false);
+    Config::set('filament-smart-translate.components.resource_labels.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
 

@@ -1,7 +1,7 @@
 <?php
 
-use Rodrigofs\FilamentAutoTranslate\Autoload\AutoloadManager;
-use Rodrigofs\FilamentAutoTranslate\Registry\OverrideMappingRegistry;
+use Rodrigofs\FilamentSmartTranslate\Autoload\AutoloadManager;
+use Rodrigofs\FilamentSmartTranslate\Registry\OverrideMappingRegistry;
 
 uses(
     Tests\TestCase::class,

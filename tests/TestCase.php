@@ -4,7 +4,7 @@ namespace Tests;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Rodrigofs\FilamentAutoTranslate\TranslationServiceProvider;
+use Rodrigofs\FilamentSmartTranslate\TranslationServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -13,7 +13,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'Rodrigofs\\FilamentAutoTranslate\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
+            fn (string $modelName) => 'Rodrigofs\\FilamentSmartTranslate\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
 
         $this->setupTestTranslations();
@@ -31,7 +31,7 @@ class TestCase extends Orchestra
         $app['config']->set('database.default', 'testing');
 
         // Set up test configuration
-        $app['config']->set('filament-auto-translation', [
+        $app['config']->set('filament-smart-translate', [
             'enabled' => true,
             'components' => [
                 'resource_labels' => [

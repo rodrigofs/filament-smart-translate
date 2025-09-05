@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Console;
+namespace Rodrigofs\FilamentSmartTranslate\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 
 class StatusCommand extends Command
 {
-    protected $signature = 'filament-auto-translation:status';
+    protected $signature = 'filament-smart-translate:status';
 
     protected $description = 'Show the package coverage status and trait usage';
 
@@ -27,14 +27,14 @@ class StatusCommand extends Command
     {
         $this->newLine();
         $this->line('  <fg=cyan>╔══════════════════════════════════════════════════════════╗</fg=cyan>');
-        $this->line('  <fg=cyan>║</fg=cyan>  <fg=white;bg=cyan> Filament Auto Translation - Status Report </fg=white;bg=cyan>  <fg=cyan>║</fg=cyan>');
+        $this->line('  <fg=cyan>║</fg=cyan>  <fg=white;bg=cyan> Filament Smart Translation - Status Report </fg=white;bg=cyan>  <fg=cyan>║</fg=cyan>');
         $this->line('  <fg=cyan>╚══════════════════════════════════════════════════════════╝</fg=cyan>');
         $this->newLine();
     }
 
     private function displayPackageStatus(): void
     {
-        $enabled = Config::get('filament-auto-translation.enabled', true);
+        $enabled = Config::get('filament-smart-translate.enabled', true);
         $status = $enabled ? '<fg=green>✓ ENABLED</fg=green>' : '<fg=red>✗ DISABLED</fg=red>';
 
         $this->line("  📦 <fg=white;options=bold>Package Status:</fg=white;options=bold> {$status}");
@@ -82,8 +82,8 @@ class StatusCommand extends Command
         ];
 
         foreach ($components as $key => $label) {
-            $enabled = Config::get("filament-auto-translation.components.{$key}.enabled", true);
-            $fallback = Config::get("filament-auto-translation.components.{$key}.fallback_strategy", 'original');
+            $enabled = Config::get("filament-smart-translate.components.{$key}.enabled", true);
+            $fallback = Config::get("filament-smart-translate.components.{$key}.fallback_strategy", 'original');
 
             $status = $enabled ? '<fg=green>✓</fg=green>' : '<fg=red>✗</fg=red>';
             $fallbackColor = match ($fallback) {
@@ -104,7 +104,7 @@ class StatusCommand extends Command
         $this->newLine();
 
         $components = ['resource_labels', 'navigation', 'actions', 'clusters', 'pages'];
-        $enabled = array_filter($components, fn ($key) => Config::get("filament-auto-translation.components.{$key}.enabled", true));
+        $enabled = array_filter($components, fn ($key) => Config::get("filament-smart-translate.components.{$key}.enabled", true));
         $coverage = count($enabled);
         $total = count($components);
         $percentage = round(($coverage / $total) * 100);
@@ -142,7 +142,7 @@ class StatusCommand extends Command
 
         if ($percentage < 100) {
             $this->line('  💡 <fg=yellow>Tip:</fg=yellow> To enable disabled components, configure the file:');
-            $this->line('     <fg=gray>config/filament-auto-translation.php</fg=gray>');
+            $this->line('     <fg=gray>config/filament-smart-translate.php</fg=gray>');
             $this->newLine();
         }
 

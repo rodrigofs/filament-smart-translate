@@ -1,10 +1,10 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate;
+namespace Rodrigofs\FilamentSmartTranslate;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyManager;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyManager;
 
 class TranslationHelper
 {
@@ -18,12 +18,12 @@ class TranslationHelper
         ?string $locale = null
     ): string {
         // Check if translation system is enabled
-        if (! Config::get('filament-auto-translation.enabled', true)) {
+        if (! Config::get('filament-smart-translate.enabled', true)) {
             return $key;
         }
 
         // Check if specific component is enabled
-        $componentConfig = Config::get("filament-auto-translation.components.{$component}", ['enabled' => true]);
+        $componentConfig = Config::get("filament-smart-translate.components.{$component}", ['enabled' => true]);
         if ($componentConfig && ! ($componentConfig['enabled'] ?? true)) {
             return $key;
         }
@@ -59,11 +59,11 @@ class TranslationHelper
      */
     protected static function logMissingTranslation(string $key, string $component, string $fallbackStrategy): void
     {
-        if (! Config::get('filament-auto-translation.debug.log_missing_translations', false)) {
+        if (! Config::get('filament-smart-translate.debug.log_missing_translations', false)) {
             return;
         }
 
-        Log::info('Filament Auto Translation: Missing translation', [
+        Log::info('Filament Smart Translation: Missing translation', [
             'key' => $key,
             'component' => $component,
             'fallback_strategy' => $fallbackStrategy,

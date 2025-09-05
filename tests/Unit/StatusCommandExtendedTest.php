@@ -5,11 +5,11 @@ use Illuminate\Support\Facades\File;
 
 beforeEach(function () {
     Config::set('app.locale', 'en');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 });
 
 it('handles different fallback strategies in component coverage', function () {
-    Config::set('filament-auto-translation.components', [
+    Config::set('filament-smart-translate.components', [
         'resource_labels' => ['enabled' => true, 'fallback_strategy' => 'humanize'],
         'navigation' => ['enabled' => true, 'fallback_strategy' => 'title_case'],
         'actions' => ['enabled' => false, 'fallback_strategy' => 'original'],
@@ -17,14 +17,14 @@ it('handles different fallback strategies in component coverage', function () {
         'pages' => ['enabled' => true, 'fallback_strategy' => 'original'],
     ]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('  🔧 Component Coverage:')
         ->doesntExpectOutput('Error');
 });
 
 it('calculates coverage percentage correctly for partial enabled components', function () {
-    Config::set('filament-auto-translation.components', [
+    Config::set('filament-smart-translate.components', [
         'resource_labels' => ['enabled' => true],
         'navigation' => ['enabled' => false],
         'actions' => ['enabled' => true],
@@ -32,13 +32,13 @@ it('calculates coverage percentage correctly for partial enabled components', fu
         'pages' => ['enabled' => true],
     ]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('    ▓ Active components: 3/5 (60%)');
 });
 
 it('shows low coverage percentage in red', function () {
-    Config::set('filament-auto-translation.components', [
+    Config::set('filament-smart-translate.components', [
         'resource_labels' => ['enabled' => false],
         'navigation' => ['enabled' => false],
         'actions' => ['enabled' => true],
@@ -46,13 +46,13 @@ it('shows low coverage percentage in red', function () {
         'pages' => ['enabled' => false],
     ]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('    ▓ Active components: 1/5 (20%)');
 });
 
 it('displays tips when coverage is not 100%', function () {
-    Config::set('filament-auto-translation.components', [
+    Config::set('filament-smart-translate.components', [
         'resource_labels' => ['enabled' => false],
         'navigation' => ['enabled' => true],
         'actions' => ['enabled' => true],
@@ -60,14 +60,14 @@ it('displays tips when coverage is not 100%', function () {
         'pages' => ['enabled' => true],
     ]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('  💡 Tip: To enable disabled components, configure the file:')
-        ->expectsOutput('     config/filament-auto-translation.php');
+        ->expectsOutput('     config/filament-smart-translate.php');
 });
 
 it('does not display tips when coverage is 100%', function () {
-    Config::set('filament-auto-translation.components', [
+    Config::set('filament-smart-translate.components', [
         'resource_labels' => ['enabled' => true],
         'navigation' => ['enabled' => true],
         'actions' => ['enabled' => true],
@@ -75,7 +75,7 @@ it('does not display tips when coverage is 100%', function () {
         'pages' => ['enabled' => true],
     ]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->doesntExpectOutput('  💡 Tip: To enable disabled components');
 });
@@ -85,7 +85,7 @@ it('handles file scanning when directories do not exist', function () {
     File::shouldReceive('exists')
         ->andReturn(false);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('    ⚠ No traits found in use');
 });
@@ -104,7 +104,7 @@ it('handles file scanning with empty directories', function () {
         ->with(realpath(base_path('app/Filament')))
         ->andReturn([]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('    ⚠ No traits found in use');
 });
@@ -131,7 +131,7 @@ it('detects resource trait candidates correctly', function () {
         ->with(base_path('app/Filament/Resources/UserResource.php'))
         ->andReturn('<?php class UserResource extends Resource {}');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -157,7 +157,7 @@ it('detects page trait candidates correctly', function () {
         ->with(base_path('app/Filament/Pages/Dashboard.php'))
         ->andReturn('<?php class Dashboard extends Page {}');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -183,7 +183,7 @@ it('detects cluster trait candidates correctly', function () {
         ->with(base_path('app/Filament/Clusters/Settings.php'))
         ->andReturn('<?php class Settings extends Cluster {}');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -209,7 +209,7 @@ it('handles files that already use traits', function () {
         ->with(base_path('app/Filament/Resources/UserResource.php'))
         ->andReturn('<?php use ResourceTranslateble; class UserResource extends Resource { use ResourceTranslateble; }');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -233,9 +233,9 @@ it('handles files with namespaced trait usage', function () {
         ->andReturn([$mockFile]);
     File::shouldReceive('get')
         ->with(base_path('app/Filament/Resources/UserResource.php'))
-        ->andReturn('<?php use Rodrigofs\\FilamentAutoTranslate\\Resource\\Concerns\\ResourceTranslateble; class UserResource extends Resource { use ResourceTranslateble; }');
+        ->andReturn('<?php use Rodrigofs\\FilamentSmartTranslate\\Resource\\Concerns\\ResourceTranslateble; class UserResource extends Resource { use ResourceTranslateble; }');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -261,7 +261,7 @@ it('shows trait candidates when files could use traits but do not', function () 
         ->with(base_path('app/Filament/Resources/UserResource.php'))
         ->andReturn('<?php class UserResource extends Resource {}');
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -271,7 +271,7 @@ it('shows info about traits when no traits are used but also no candidates', fun
     File::shouldReceive('allFiles')
         ->andReturn([]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
         ->expectsOutput('  💡 Info: Traits are optional and provide additional control over:');
 });
@@ -295,7 +295,7 @@ it('handles non-php files in scanning', function () {
     File::shouldReceive('allFiles')
         ->andReturn([$mockFile]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });
 
@@ -306,6 +306,6 @@ it('avoids duplicate paths in scanning', function () {
     File::shouldReceive('allFiles')
         ->andReturn([]);
 
-    $this->artisan('filament-auto-translation:status')
+    $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0);
 });

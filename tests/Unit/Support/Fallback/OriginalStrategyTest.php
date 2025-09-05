@@ -1,6 +1,6 @@
 <?php
 
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\OriginalStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\OriginalStrategy;
 
 it('returns the original key unchanged', function () {
     $strategy = new OriginalStrategy();

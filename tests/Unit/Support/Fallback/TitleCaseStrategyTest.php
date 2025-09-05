@@ -1,6 +1,6 @@
 <?php
 
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\TitleCaseStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\TitleCaseStrategy;
 
 it('transforms keys to title case', function () {
     $strategy = new TitleCaseStrategy();

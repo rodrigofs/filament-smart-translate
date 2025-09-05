@@ -12,11 +12,11 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\TranslationServiceProvider;
+use Rodrigofs\FilamentSmartTranslate\TranslationServiceProvider;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -36,8 +36,8 @@ it('service provider registers configuration correctly', function () {
     $provider = new TranslationServiceProvider(app());
     $provider->register();
 
-    expect(config('filament-auto-translation'))->toBeArray();
-    expect(config('filament-auto-translation.enabled'))->toBeTrue();
+    expect(config('filament-smart-translate'))->toBeArray();
+    expect(config('filament-smart-translate.enabled'))->toBeTrue();
 });
 
 it('service provider publishes config in console', function () {

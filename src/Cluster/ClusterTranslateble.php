@@ -1,8 +1,8 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Cluster;
+namespace Rodrigofs\FilamentSmartTranslate\Cluster;
 
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 /**
  * @mixin \Filament\Clusters\Cluster

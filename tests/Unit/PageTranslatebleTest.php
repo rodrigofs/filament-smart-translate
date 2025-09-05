@@ -2,12 +2,12 @@
 
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -92,14 +92,14 @@ it('returns null when parent model label is null', function () {
 });
 
 it('respects disabled translation setting for navigation groups', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
     expect($result)->toBe('admin');
 });
 
 it('respects disabled translation setting for model labels', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
     expect($result)->toBe('user');

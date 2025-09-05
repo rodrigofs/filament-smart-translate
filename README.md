@@ -1,9 +1,9 @@
-# Filament Auto Translation
+# Filament Smart Translation
 
-[![Tests](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/run-tests.yml/badge.svg)](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/run-tests.yml)
-[![PHPStan](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/phpstan.yml/badge.svg)](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/phpstan.yml)
-[![Code Style](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/fix-code-style.yml)
-[![Coverage](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/rodrigofs/filament-auto-translation/actions/workflows/test-coverage.yml)
+[![Tests](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml)
+[![PHPStan](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml)
+[![Code Style](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml)
+[![Coverage](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml)
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 ![Filament v4](https://img.shields.io/badge/Filament-v4.0+-FF6B35?style=for-the-badge&logo=laravel)
@@ -30,19 +30,19 @@
 ### 1. Install via Composer
 
 ```bash
-composer require rodrigofs/filament-auto-translation
+composer require rodrigofs/filament-smart-translate
 ```
 
 ### 2. Publish Configuration (Optional)
 
 ```bash
-php artisan vendor:publish --tag=filament-auto-translation-config
+php artisan vendor:publish --tag=filament-smart-translate-config
 ```
 
 ### 3. Check Package Status (Optional)
 
 ```bash
-php artisan filament-auto-translation:status
+php artisan filament-smart-translate:status
 ```
 
 This command shows a visual overview of your package configuration, trait usage, and component coverage.
@@ -96,9 +96,9 @@ For Resources, Pages, and Clusters to have translation, you must add the appropr
 
 ```php
 // Resources
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
 
 class UserResource extends Resource
 {
@@ -157,7 +157,7 @@ To enable translation for Resources, Pages, and Clusters, you **must** add the a
 namespace App\Filament\Resources;
 
 use Filament\Resources\Resource;
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -191,7 +191,7 @@ class UserResource extends Resource
 namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
 
 class Settings extends Page
 {
@@ -213,7 +213,7 @@ class Settings extends Page
 namespace App\Filament\Clusters;
 
 use Filament\Clusters\Cluster;
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
 
 class UserManagement extends Cluster
 {
@@ -255,7 +255,7 @@ The package works without configuration, but you can customize its behavior:
 
 return [
     // Enable/disable the entire translation system
-    'enabled' => env('FILAMENT_AUTO_TRANSLATION_ENABLED', true),
+    'enabled' => env('FILAMENT_SMART_TRANSLATE_ENABLED', true),
     
     // Component-specific settings
     'components' => [
@@ -292,8 +292,8 @@ return [
     
     // Debug settings
     'debug' => [
-        'log_missing_translations' => env('FILAMENT_AUTO_TRANSLATION_DEBUG', false),
-        'log_fallback_usage' => env('FILAMENT_AUTO_TRANSLATION_DEBUG', false),
+        'log_missing_translations' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
+        'log_fallback_usage' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
     ],
 ];
 ```
@@ -388,7 +388,7 @@ You can create custom fallback strategies by implementing the `FallbackStrategyI
 
 namespace App\Strategies;
 
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyInterface;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyInterface;
 
 class UppercaseStrategy implements FallbackStrategyInterface
 {
@@ -402,7 +402,7 @@ class UppercaseStrategy implements FallbackStrategyInterface
 #### 2. Register the Strategy
 
 ```php
-// config/filament-auto-translation.php
+// config/filament-smart-translate.php
 'fallback_strategies' => [
     'uppercase' => \App\Strategies\UppercaseStrategy::class,
 ],
@@ -453,7 +453,7 @@ The fallback system uses a sophisticated architecture with these components:
 
 namespace App\Strategies;
 
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyInterface;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyInterface;
 
 class LocalizedPrefixStrategy implements FallbackStrategyInterface
 {
@@ -478,10 +478,10 @@ Control fallback behavior via environment variables:
 
 ```env
 # Enable/disable translation system
-FILAMENT_AUTO_TRANSLATION_ENABLED=true
+FILAMENT_SMART_TRANSLATE_ENABLED=true
 
 # Enable debug logging for fallback usage
-FILAMENT_AUTO_TRANSLATION_DEBUG=false
+FILAMENT_SMART_TRANSLATE_DEBUG=false
 ```
 
 ### Debug Fallback Usage
@@ -497,7 +497,7 @@ Enable logging to see which fallback strategies are being used:
 
 This will log entries like:
 ```
-[2024-12-19 10:30:15] local.INFO: Filament Auto Translation: Missing translation
+[2024-12-19 10:30:15] local.INFO: Filament Smart Translation: Missing translation
 {
     "key": "user_profile",
     "component": "resource_labels", 
@@ -593,7 +593,7 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -672,7 +672,7 @@ class UserResource extends Resource
 Use the status command to get a visual overview of your package configuration:
 
 ```bash
-php artisan filament-auto-translation:status
+php artisan filament-smart-translate:status
 ```
 
 **What it shows:**
@@ -685,7 +685,7 @@ php artisan filament-auto-translation:status
 **Example output:**
 ```
   ╔══════════════════════════════════════════════════════════╗
-  ║  Filament Auto Translation - Status Report              ║
+  ║  Filament Smart Translation - Status Report              ║
   ╚══════════════════════════════════════════════════════════╝
 
   📦 Package Status: ✓ ENABLED
@@ -756,7 +756,7 @@ composer quality
 3. **Clear config cache**: Run `php artisan config:clear`
 4. **Check configuration**: Ensure the package is enabled in configuration
 5. **Add missing traits**: Resources, Pages, and Clusters require traits to work
-6. **Use status command**: Run `php artisan filament-auto-translation:status` to see what's configured
+6. **Use status command**: Run `php artisan filament-smart-translate:status` to see what's configured
 
 ### Resources, Pages, or Clusters Not Translating?
 
@@ -764,16 +764,16 @@ This is expected behavior. These components **require traits** to enable transla
 
 ```php
 // Add to your Resource
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
 
 // Add to your Page  
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
 
 // Add to your Cluster
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
 ```
 
-Run `php artisan filament-auto-translation:status` to see which files need traits.
+Run `php artisan filament-smart-translate:status` to see which files need traits.
 
 ### Debug Missing Translations
 
@@ -895,4 +895,4 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Made with ❤️ for the Filament community**
 
-[![GitHub stars](https://img.shields.io/github/stars/rodrigofs/filament-auto-translation?style=social)](https://github.com/rodrigofs/filament-auto-translation)
+[![GitHub stars](https://img.shields.io/github/stars/rodrigofs/filament-smart-translate?style=social)](https://github.com/rodrigofs/filament-smart-translate)
