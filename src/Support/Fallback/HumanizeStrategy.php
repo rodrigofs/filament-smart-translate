@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Support\Fallback;
+namespace Rodrigofs\FilamentSmartTranslate\Support\Fallback;
 
 use Illuminate\Support\Str;
 

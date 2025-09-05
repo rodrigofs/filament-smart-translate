@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyInterface;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\FallbackStrategyManager;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\HumanizeStrategy;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\OriginalStrategy;
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\TitleCaseStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyInterface;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyManager;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\HumanizeStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\OriginalStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\TitleCaseStrategy;
 
 beforeEach(function () {
     // Clear strategy cache between tests
@@ -14,7 +14,7 @@ beforeEach(function () {
     $strategiesProperty->setAccessible(true);
     $strategiesProperty->setValue([]);
 
-    Config::set('filament-auto-translation.fallback_strategies', []);
+    Config::set('filament-smart-translate.fallback_strategies', []);
 });
 
 it('resolves built-in humanize strategy', function () {
@@ -46,7 +46,7 @@ it('caches resolved strategies', function () {
 });
 
 it('resolves custom closure strategies from configuration', function () {
-    Config::set('filament-auto-translation.fallback_strategies.custom', function ($key) {
+    Config::set('filament-smart-translate.fallback_strategies.custom', function ($key) {
         return 'CUSTOM_' . strtoupper($key);
     });
 
@@ -65,7 +65,7 @@ it('resolves custom class strategies from configuration', function () {
         }
     };
 
-    Config::set('filament-auto-translation.fallback_strategies.custom_class', get_class($customStrategyClass));
+    Config::set('filament-smart-translate.fallback_strategies.custom_class', get_class($customStrategyClass));
 
     $strategy = FallbackStrategyManager::resolve('custom_class');
 
@@ -81,7 +81,7 @@ it('falls back to humanize strategy for unknown strategies', function () {
 });
 
 it('handles non-callable strategies in configuration', function () {
-    Config::set('filament-auto-translation.fallback_strategies.invalid', 'not_callable');
+    Config::set('filament-smart-translate.fallback_strategies.invalid', 'not_callable');
 
     $strategy = FallbackStrategyManager::resolve('invalid');
 
@@ -104,7 +104,7 @@ it('throws exception if humanize strategy cannot be resolved', function () {
 });
 
 it('applies strategy directly without resolving twice', function () {
-    Config::set('filament-auto-translation.fallback_strategies.custom', function ($key) {
+    Config::set('filament-smart-translate.fallback_strategies.custom', function ($key) {
         return 'APPLIED_' . $key;
     });
 
@@ -114,7 +114,7 @@ it('applies strategy directly without resolving twice', function () {
 });
 
 it('handles class-not-exists scenario gracefully', function () {
-    Config::set('filament-auto-translation.fallback_strategies.missing_class', 'NonExistentClass');
+    Config::set('filament-smart-translate.fallback_strategies.missing_class', 'NonExistentClass');
 
     $strategy = FallbackStrategyManager::resolve('missing_class');
 

@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     | Enable or disable the entire auto-translation system
     */
-    'enabled' => env('FILAMENT_AUTO_TRANSLATION_ENABLED', true),
+    'enabled' => env('FILAMENT_SMART_TRANSLATE_ENABLED', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ return [
     | Logging and debugging options
     */
     'debug' => [
-        'log_missing_translations' => env('FILAMENT_AUTO_TRANSLATION_DEBUG', false),
-        'log_fallback_usage' => env('FILAMENT_AUTO_TRANSLATION_DEBUG', false),
+        'log_missing_translations' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
+        'log_fallback_usage' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
     ],
 ];

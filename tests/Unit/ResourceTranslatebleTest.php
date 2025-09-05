@@ -3,12 +3,12 @@
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -87,29 +87,29 @@ it('handles enum navigation groups without translation', function () {
 });
 
 it('respects disabled translation setting for model labels', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
     expect($result)->toBe('user');
 });
 
 it('respects disabled translation setting for navigation groups', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
     expect($result)->toBe('admin');
 });
 
 it('applies fallback strategy for model labels', function () {
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'original');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'original');
 
     $result = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
     expect($result)->toBe('user profile');
 });
 
 it('applies fallback strategy for navigation groups', function () {
-    Config::set('filament-auto-translation.components.navigation_groups.fallback_strategy', 'original');
-    Config::set('filament-auto-translation.components.navigation_groups.enabled', true);
+    Config::set('filament-smart-translate.components.navigation_groups.fallback_strategy', 'original');
+    Config::set('filament-smart-translate.components.navigation_groups.enabled', true);
 
     $result = TranslationHelper::translateWithFallback('user management', 'navigation_groups');
     expect($result)->toBe('user management');

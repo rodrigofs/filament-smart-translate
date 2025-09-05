@@ -5,14 +5,14 @@ use Filament\Pages\Page;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
-use Rodrigofs\FilamentAutoTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentAutoTranslate\Resource\ResourceTranslateble;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations
     app('translator')->addLines([
@@ -105,7 +105,7 @@ it('cluster trait handles parent getClusterBreadcrumb correctly', function () {
 
 // Test trait with disabled translation
 it('traits respect global translation disabled setting', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     // Test cluster
     $result1 = TranslationHelper::translateWithFallback('admin', 'clusters');
@@ -122,9 +122,9 @@ it('traits respect global translation disabled setting', function () {
 
 // Test trait with component-specific disabled setting
 it('traits respect component-specific disabled settings', function () {
-    Config::set('filament-auto-translation.components.clusters.enabled', false);
-    Config::set('filament-auto-translation.components.resource_labels.enabled', false);
-    Config::set('filament-auto-translation.components.navigation_groups.enabled', false);
+    Config::set('filament-smart-translate.components.clusters.enabled', false);
+    Config::set('filament-smart-translate.components.resource_labels.enabled', false);
+    Config::set('filament-smart-translate.components.navigation_groups.enabled', false);
 
     $result1 = TranslationHelper::translateWithFallback('admin', 'clusters');
     expect($result1)->toBe('admin');
@@ -138,9 +138,9 @@ it('traits respect component-specific disabled settings', function () {
 
 // Test trait behavior with different fallback strategies
 it('traits use correct fallback strategies', function () {
-    Config::set('filament-auto-translation.components.clusters.fallback_strategy', 'title_case');
-    Config::set('filament-auto-translation.components.resource_labels.fallback_strategy', 'humanize');
-    Config::set('filament-auto-translation.components.navigation_groups.fallback_strategy', 'original');
+    Config::set('filament-smart-translate.components.clusters.fallback_strategy', 'title_case');
+    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
+    Config::set('filament-smart-translate.components.navigation_groups.fallback_strategy', 'original');
 
     $result1 = TranslationHelper::translateWithFallback('user settings', 'clusters');
     expect($result1)->toBe('User Settings');

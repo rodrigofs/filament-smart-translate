@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate\Support\Fallback;
+namespace Rodrigofs\FilamentSmartTranslate\Support\Fallback;
 
 use Closure;
 use Illuminate\Support\Facades\Config;
@@ -19,7 +19,7 @@ class FallbackStrategyManager
             return static::$strategies[$strategy];
         }
 
-        $strategies = Config::get('filament-auto-translation.fallback_strategies', []);
+        $strategies = Config::get('filament-smart-translate.fallback_strategies', []);
 
         // Check if it's a closure in configuration
         if (isset($strategies[$strategy]) && is_callable($strategies[$strategy])) {
@@ -61,7 +61,7 @@ class FallbackStrategyManager
 
     protected static function getStrategyClass(string $strategy): string
     {
-        $strategies = Config::get('filament-auto-translation.fallback_strategies', []);
+        $strategies = Config::get('filament-smart-translate.fallback_strategies', []);
 
         // If it's a closure, we don't return it here
         if (isset($strategies[$strategy]) && is_callable($strategies[$strategy])) {

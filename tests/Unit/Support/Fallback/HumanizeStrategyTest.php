@@ -1,6 +1,6 @@
 <?php
 
-use Rodrigofs\FilamentAutoTranslate\Support\Fallback\HumanizeStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\HumanizeStrategy;
 
 it('transforms snake_case keys to human readable format', function () {
     $strategy = new HumanizeStrategy();

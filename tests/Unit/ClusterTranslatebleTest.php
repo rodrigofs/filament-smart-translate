@@ -2,12 +2,12 @@
 
 use Filament\Clusters\Cluster;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentAutoTranslate\Cluster\ClusterTranslateble;
-use Rodrigofs\FilamentAutoTranslate\TranslationHelper;
+use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
     Config::set('app.locale', 'pt_BR');
-    Config::set('filament-auto-translation.enabled', true);
+    Config::set('filament-smart-translate.enabled', true);
 
     // Set up test translations for clusters
     app('translator')->addLines([
@@ -65,7 +65,7 @@ it('returns null when cluster breadcrumb is null', function () {
 });
 
 it('respects disabled translation setting for clusters', function () {
-    Config::set('filament-auto-translation.enabled', false);
+    Config::set('filament-smart-translate.enabled', false);
 
     $cluster = new class extends Cluster
     {
@@ -80,7 +80,7 @@ it('respects disabled translation setting for clusters', function () {
 });
 
 it('applies fallback strategy for cluster breadcrumbs', function () {
-    Config::set('filament-auto-translation.components.clusters.fallback_strategy', 'original');
+    Config::set('filament-smart-translate.components.clusters.fallback_strategy', 'original');
 
     $cluster = new class extends Cluster
     {

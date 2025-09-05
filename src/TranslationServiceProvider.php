@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentAutoTranslate;
+namespace Rodrigofs\FilamentSmartTranslate;
 
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -23,8 +23,8 @@ class TranslationServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/filament-auto-translation.php',
-            'filament-auto-translation'
+            __DIR__ . '/../config/filament-smart-translate.php',
+            'filament-smart-translate'
         );
 
         // PhpParser dependencies removed - no longer needed for simplified commands
@@ -34,8 +34,8 @@ class TranslationServiceProvider extends ServiceProvider
     {
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../config/filament-auto-translation.php' => config_path('filament-auto-translation.php'),
-        ], 'filament-auto-translation-config');
+            __DIR__ . '/../config/filament-smart-translate.php' => config_path('filament-smart-translate.php'),
+        ], 'filament-smart-translate-config');
 
         // Register Artisan commands
         if ($this->app->runningInConsole()) {

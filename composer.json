@@ -1,5 +1,5 @@
 {
-    "name": "rodrigofs/filament-auto-translation",
+    "name": "rodrigofs/filament-smart-translate",
     "description": "A comprehensive Laravel package for automatic translation support in Filament v4 applications with advanced fallback strategies.",
     "license": "MIT",
     "keywords": [
@@ -9,7 +9,7 @@
         "i18n",
         "localization",
         "multilingual",
-        "auto-translation",
+        "smart-translation",
         "fallback-strategies",
         "php"
     ],
@@ -36,7 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Rodrigofs\\FilamentAutoTranslate\\": "src/"
+            "Rodrigofs\\FilamentSmartTranslate\\": "src/"
         }
     },
     "autoload-dev": {
@@ -47,7 +47,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Rodrigofs\\FilamentAutoTranslate\\TranslationServiceProvider"
+                "Rodrigofs\\FilamentSmartTranslate\\TranslationServiceProvider"
             ]
         }
     },
