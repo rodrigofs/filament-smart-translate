@@ -82,10 +82,14 @@ class TranslationServiceProvider extends ServiceProvider
             }
         });
 
+        Action::configureUsing(function (Action $action) {
+            $action->translateLabel();
+        });
+
         CreateAction::configureUsing(function (Action $action) {
             $action->translateLabel();
 
-            if (filled($action->getLabel())) {
+            if (filled($action->getLabel()) && ! is_null($action->getModel())) {
                 $action->label(fn () => __('filament-actions::create.single.label', ['label' => TranslationHelper::translateWithFallback(get_model_label($action->getModel()), 'actions')]));
             }
 
@@ -95,9 +99,10 @@ class TranslationServiceProvider extends ServiceProvider
         }, null, true);
 
         EditAction::configureUsing(function (EditAction $action) {
+
             $action->translateLabel();
 
-            if (filled($action->getLabel())) {
+            if (filled($action->getLabel()) && ! is_null($action->getModel())) {
                 $action->label(fn () => __('filament-actions::edit.single.label', ['label' => TranslationHelper::translateWithFallback(get_model_label($action->getModel()), 'actions')]));
             }
 
@@ -109,7 +114,7 @@ class TranslationServiceProvider extends ServiceProvider
         DeleteAction::configureUsing(function (DeleteAction $action) {
             $action->translateLabel();
 
-            if (filled($action->getModalHeading())) {
+            if (filled($action->getModalHeading()) && ! is_null($action->getModel())) {
                 $action->modalHeading(fn () => __('filament-actions::delete.single.modal.heading', ['label' => TranslationHelper::translateWithFallback(get_model_label($action->getModel()), 'actions')]));
             }
         }, null, true);
