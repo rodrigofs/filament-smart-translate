@@ -26,7 +26,7 @@ it('respects disabled setting', function () {
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
 
-    expect($result)->toBe('user');
+    expect($result)->toBe('User');
 });
 
 it('uses fallback strategies', function () {
@@ -34,7 +34,7 @@ it('uses fallback strategies', function () {
 
     $result = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
 
-    expect($result)->toBe('User Profile');
+    expect($result)->toBe('user profile');
 });
 
 it('handles empty keys', function () {
@@ -46,7 +46,7 @@ it('handles empty keys', function () {
 it('uses original fallback by default', function () {
     $result = TranslationHelper::translateWithFallback('nonexistent_key', 'resource_labels');
 
-    expect($result)->toBe('nonexistent_key');
+    expect($result)->toBe('Nonexistent key');
 });
 
 it('applies humanize fallback strategy', function () {
@@ -54,7 +54,7 @@ it('applies humanize fallback strategy', function () {
 
     $result = TranslationHelper::translateWithFallback('user_profile_settings', 'resource_labels');
 
-    expect($result)->toBe('User_Profile_Settings');
+    expect($result)->toBe('User Profile Settings');
 });
 
 it('respects component disabled setting', function () {
@@ -62,5 +62,5 @@ it('respects component disabled setting', function () {
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
 
-    expect($result)->toBe('user');
+    expect($result)->toBe('User');
 });

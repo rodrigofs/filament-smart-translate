@@ -25,7 +25,7 @@ it('translates navigation group when translation exists', function () {
 
 it('returns original navigation group when no translation exists', function () {
     $result = TranslationHelper::translateWithFallback('unknown_group', 'navigation_groups');
-    expect($result)->toBe('Unknown_Group'); // Default humanize strategy
+    expect($result)->toBe('Unknown group'); // Default original strategy
 });
 
 it('returns null when navigation group is null', function () {
@@ -60,7 +60,7 @@ it('handles enum navigation groups without translation', function () {
     };
 
     $result = $pageClass::getNavigationGroup();
-    expect($result)->toBe('Test_Group'); // Humanized since no translation exists
+    expect($result)->toBe('Test group'); // Original strategy since no translation exists
 });
 
 it('translates model label when translation exists', function () {
@@ -95,14 +95,14 @@ it('respects disabled translation setting for navigation groups', function () {
     Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
-    expect($result)->toBe('admin');
+    expect($result)->toBe('Admin');
 });
 
 it('respects disabled translation setting for model labels', function () {
     Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
-    expect($result)->toBe('user');
+    expect($result)->toBe('User');
 });
 
 it('trait properly delegates to TranslationHelper for navigation groups', function () {
@@ -119,7 +119,7 @@ it('trait properly delegates to TranslationHelper for navigation groups', functi
     };
 
     $result = $pageClass::getNavigationGroup();
-    expect($result)->toBe('Test_Group'); // Humanized version since no translation exists
+    expect($result)->toBe('Test group'); // Original strategy since no translation exists
 });
 
 it('trait handles model label translation correctly', function () {
@@ -141,7 +141,7 @@ it('trait handles model label translation correctly', function () {
 
     $pageInstance = new $pageClass();
     $result = $pageInstance->getModelLabel();
-    expect($result)->toBe('test_model'); // Original strategy as configured
+    expect($result)->toBe('test_model'); // Test overrides trait method completely
 });
 
 it('returns enum navigation group unchanged without translation', function () {

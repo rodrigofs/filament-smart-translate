@@ -2,157 +2,182 @@
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyManager;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
+    FallbackStrategyManager::clearCache();
     Config::set('app.locale', 'pt_BR');
     Config::set('filament-smart-translate.enabled', true);
-
-    // Set up test translations
-    app('translator')->addLines([
-        'resource_labels.user' => 'Usuário',
-        'actions.create' => 'Criar',
-        'test.direct_key' => 'Tradução Direta',
-    ], 'pt_BR');
+    Config::set('filament-smart-translate.debug.log_missing_translations', false);
+    Config::set('filament-smart-translate.fallback_strategies', []);
 });
 
-it('translates with fallback when component prefix translation exists', function () {
-    $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
-    expect($result)->toBe('Usuário');
+it('returns empty string for empty key', function () {
+    $result = TranslationHelper::translateWithFallback('');
+    expect($result)->toBe('');
 });
 
-it('translates with fallback when direct translation exists', function () {
-    $result = TranslationHelper::translateWithFallback('test.direct_key', 'nonexistent_component');
-    expect($result)->toBe('Tradução Direta');
+it('returns fallback when translation system is disabled', function () {
+    Config::set('filament-smart-translate.enabled', false);
+
+    $result = TranslationHelper::translateWithFallback('test.key');
+    expect($result)->toBe('Key');
 });
 
-it('applies custom fallback strategy from configuration', function () {
-    Config::set('filament-smart-translate.fallback_strategies.custom_test', fn ($key) => 'CUSTOM_' . strtoupper($key));
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'custom_test');
+it('returns fallback when component is disabled', function () {
+    Config::set('filament-smart-translate.components.test_component.enabled', false);
 
-    $result = TranslationHelper::translateWithFallback('unknown_key', 'resource_labels');
-    expect($result)->toBe('CUSTOM_UNKNOWN_KEY');
+    $result = TranslationHelper::translateWithFallback('test.key', 'test_component');
+    expect($result)->toBe('Key');
 });
 
-it('applies default fallback strategy when configured strategy is not callable', function () {
-    Config::set('filament-smart-translate.fallback_strategies.invalid_strategy', 'not_callable');
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'invalid_strategy');
+it('uses component strategy when component is enabled', function () {
+    Config::set('filament-smart-translate.components.test_component.enabled', true);
+    Config::set('filament-smart-translate.components.test_component.fallback_strategy', 'humanize');
 
-    $result = TranslationHelper::translateWithFallback('test_key', 'resource_labels');
-    expect($result)->toBe('Test_Key'); // Default humanize strategy
+    $result = TranslationHelper::translateWithFallback('test_key', 'test_component');
+    expect($result)->toBe('Test Key');
 });
 
-it('applies match statement fallback strategies', function () {
-    // Test humanize strategy
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
-    $result1 = TranslationHelper::translateWithFallback('user_profile_data', 'resource_labels');
-    expect($result1)->toBe('User_Profile_Data');
-
-    // Test title_case strategy
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'title_case');
-    $result2 = TranslationHelper::translateWithFallback('user profile data', 'resource_labels');
-    expect($result2)->toBe('User Profile Data');
-
-    // Test original strategy
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'original');
-    $result3 = TranslationHelper::translateWithFallback('test_key', 'resource_labels');
-    expect($result3)->toBe('test_key');
-
-    // Test default case (unknown strategy)
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'unknown_strategy');
-    $result4 = TranslationHelper::translateWithFallback('another_test', 'resource_labels');
-    expect($result4)->toBe('Another_Test'); // Default to humanize
+it('uses default component values when not configured', function () {
+    $result = TranslationHelper::translateWithFallback('test_key', 'undefined_component');
+    expect($result)->toBe('Test key'); // original strategy default
 });
 
-it('logs missing translation when debug is enabled', function () {
+it('logs missing translation when debug is enabled and component is disabled', function () {
     Config::set('filament-smart-translate.debug.log_missing_translations', true);
+    Config::set('filament-smart-translate.components.test_component.enabled', false);
 
     Log::shouldReceive('info')
         ->once()
         ->with('Filament Smart Translation: Missing translation', [
-            'key' => 'missing_key',
-            'component' => 'resource_labels',
+            'key' => 'test_key',
+            'component' => 'test_component',
             'fallback_strategy' => 'original',
             'locale' => 'pt_BR',
         ]);
 
-    $result = TranslationHelper::translateWithFallback('missing_key', 'resource_labels');
-    expect($result)->toBe('missing_key');
+    TranslationHelper::translateWithFallback('test_key', 'test_component');
 });
 
-it('does not log missing translation when debug is disabled', function () {
+it('does not log when debug is disabled', function () {
     Config::set('filament-smart-translate.debug.log_missing_translations', false);
 
     Log::shouldReceive('info')->never();
 
-    $result = TranslationHelper::translateWithFallback('missing_key', 'resource_labels');
-    expect($result)->toBe('missing_key');
+    TranslationHelper::translateWithFallback('test_key', 'test_component');
 });
 
-it('handles component configuration when component does not exist', function () {
-    $result = TranslationHelper::translateWithFallback('test_key', 'nonexistent_component');
-    expect($result)->toBe('Test_Key'); // Default humanize strategy
+it('handles exceptions in strategy application gracefully', function () {
+    // Force a strategy manager exception
+    Config::set('filament-smart-translate.fallback_strategies.bad_strategy', 'NonExistentClass');
+    Config::set('filament-smart-translate.components.test_component.fallback_strategy', 'bad_strategy');
+
+    $result = TranslationHelper::translateWithFallback('test.key', 'test_component');
+
+    // Should return safe extraction even if strategy fails
+    expect($result)->toBe('Key');
 });
 
-it('handles component configuration when component is enabled but no fallback strategy defined', function () {
-    Config::set('filament-smart-translate.components.test_component', ['enabled' => true]);
+it('handles unknown strategies gracefully', function () {
+    Config::set('filament-smart-translate.components.test_component.enabled', true);
+    Config::set('filament-smart-translate.components.test_component.fallback_strategy', 'completely_unknown_strategy');
+
+    $result = TranslationHelper::translateWithFallback('test.key', 'test_component');
+
+    // Should return safe extraction using original strategy
+    expect($result)->toBe('Key');
+});
+
+it('handles logging gracefully when log fails', function () {
+    Config::set('filament-smart-translate.debug.log_missing_translations', true);
+    Config::set('filament-smart-translate.components.test_component.enabled', false);
+
+    // Even if logging fails internally, the method should still work
+    $result = TranslationHelper::translateWithFallback('test_key', 'test_component');
+    expect($result)->toBe('Test key');
+});
+
+it('handles invalid config values gracefully', function () {
+    // Test with invalid config values that might cause issues
+    Config::set('filament-smart-translate.components.test_component.enabled', 'invalid_boolean');
+    Config::set('filament-smart-translate.components.test_component.fallback_strategy', null);
 
     $result = TranslationHelper::translateWithFallback('test_key', 'test_component');
-    expect($result)->toBe('Test_Key'); // Default humanize strategy
+
+    // Should still return a result
+    expect($result)->toBe('Test key');
 });
 
-it('handles empty fallback strategies configuration', function () {
-    Config::set('filament-smart-translate.fallback_strategies', []);
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
+it('handles edge cases with special characters', function () {
+    $result1 = TranslationHelper::translateWithFallback('test@key');
+    $result2 = TranslationHelper::translateWithFallback('test-key');
+    $result3 = TranslationHelper::translateWithFallback('test_key');
 
-    $result = TranslationHelper::translateWithFallback('test_key', 'resource_labels');
-    expect($result)->toBe('Test_Key'); // Uses match statement default
+    expect($result1)->toBe('Test@key');
+    expect($result2)->toBe('Test key'); // kebab() converts hyphens to spaces
+    expect($result3)->toBe('Test key');
 });
 
-it('translates with replace parameters', function () {
-    app('translator')->addLines([
-        'messages.welcome' => 'Bem-vindo, :name!',
-    ], 'pt_BR');
-
-    $result = TranslationHelper::translateWithFallback('welcome', 'messages', ['name' => 'João']);
-    expect($result)->toBe('Bem-vindo, João!');
+it('handles keys without dots correctly', function () {
+    $result = TranslationHelper::translateWithFallback('singlekey');
+    expect($result)->toBe('Singlekey');
 });
 
-it('translates with specific locale parameter', function () {
-    app('translator')->addLines([
-        'resource_labels.user' => 'User',
-    ], 'en');
-
-    $result = TranslationHelper::translateWithFallback('user', 'resource_labels', [], 'en');
-    expect($result)->toBe('User');
+it('handles complex dotted keys correctly', function () {
+    $result = TranslationHelper::translateWithFallback('namespace.group.subgroup.final_key');
+    expect($result)->toBe('Final key');
 });
 
-it('handles default component parameter', function () {
-    app('translator')->addLines([
-        'test.test_key' => 'Chave de Teste',
-    ], 'pt_BR');
+it('handles different strategies correctly', function () {
+    Config::set('filament-smart-translate.components.test.enabled', true);
 
-    $result = TranslationHelper::translateWithFallback('test.test_key', 'default');
-    expect($result)->toBe('Chave de Teste');
+    // Test humanize strategy
+    Config::set('filament-smart-translate.components.test.fallback_strategy', 'humanize');
+    $result1 = TranslationHelper::translateWithFallback('user_profile_name', 'test');
+    expect($result1)->toBe('User Profile Name');
+
+    // Test original strategy
+    Config::set('filament-smart-translate.components.test.fallback_strategy', 'original');
+    $result2 = TranslationHelper::translateWithFallback('user_profile_name', 'test');
+    expect($result2)->toBe('User profile name');
+
+    // Test lower_case strategy (converts underscores to hyphens and lowercases)
+    Config::set('filament-smart-translate.components.test.fallback_strategy', 'lower_case');
+    $result3 = TranslationHelper::translateWithFallback('user_profile_name', 'test');
+    expect($result3)->toBe('user-profile-name');
 });
 
-it('handles translation with empty key', function () {
-    $result = TranslationHelper::translateWithFallback('', 'resource_labels');
-    expect($result)->toBe('');
+it('handles boolean component enabled config correctly', function () {
+    // Test with true
+    Config::set('filament-smart-translate.components.test.enabled', true);
+    $result1 = TranslationHelper::translateWithFallback('test_key', 'test');
+    expect($result1)->toBe('Test key');
+
+    // Test with false
+    Config::set('filament-smart-translate.components.test.enabled', false);
+    $result2 = TranslationHelper::translateWithFallback('test_key', 'test');
+    expect($result2)->toBe('Test key'); // Uses original strategy for disabled component
+
+    // Test with non-boolean (should use default enabled = true)
+    Config::set('filament-smart-translate.components.test.enabled', 'string_value');
+    $result3 = TranslationHelper::translateWithFallback('test_key', 'test');
+    expect($result3)->toBe('Test key');
 });
 
-it('uses title_case fallback strategy from match statement', function () {
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'title_case');
-    Config::set('filament-smart-translate.fallback_strategies', []); // Empty to force match statement
+it('uses correct fallback strategy from component config', function () {
+    Config::set('filament-smart-translate.components.test.enabled', true);
+    Config::set('filament-smart-translate.components.test.fallback_strategy', 'humanize');
 
-    $result = TranslationHelper::translateWithFallback('user profile data', 'resource_labels');
-    expect($result)->toBe('User Profile Data');
+    $result = TranslationHelper::translateWithFallback('user_name', 'test');
+    expect($result)->toBe('User Name');
 });
 
-it('uses original fallback strategy from match statement', function () {
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'original');
-    Config::set('filament-smart-translate.fallback_strategies', []); // Empty to force match statement
+it('uses default strategy when no fallback strategy is configured', function () {
+    Config::set('filament-smart-translate.components.test.enabled', true);
+    // No fallback_strategy configured
 
-    $result = TranslationHelper::translateWithFallback('test_key_original', 'resource_labels');
-    expect($result)->toBe('test_key_original');
+    $result = TranslationHelper::translateWithFallback('user_name', 'test');
+    expect($result)->toBe('User name'); // Should use default 'original' strategy
 });

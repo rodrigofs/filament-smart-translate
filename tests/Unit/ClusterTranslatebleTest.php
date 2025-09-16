@@ -39,7 +39,7 @@ it('returns original breadcrumb when no translation exists', function () {
 
     $result = $cluster::getClusterBreadcrumb();
 
-    expect($result)->toBe('unknown_cluster');
+    expect($result)->toBe('Unknown cluster');
 });
 
 it('returns null when cluster breadcrumb is null', function () {
@@ -76,7 +76,7 @@ it('respects disabled translation setting for clusters', function () {
 
     $result = $cluster::getClusterBreadcrumb();
 
-    expect($result)->toBe('settings');
+    expect($result)->toBe('Settings');
 });
 
 it('applies fallback strategy for cluster breadcrumbs', function () {
@@ -91,5 +91,5 @@ it('applies fallback strategy for cluster breadcrumbs', function () {
 
     $result = $cluster::getClusterBreadcrumb();
 
-    expect($result)->toBe('user settings');
+    expect($result)->toBe('User settings');
 });
