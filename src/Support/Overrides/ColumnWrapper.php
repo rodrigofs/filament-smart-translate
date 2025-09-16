@@ -2,18 +2,14 @@
 
 namespace Rodrigofs\FilamentSmartTranslate\Support\Overrides;
 
-use Filament\Forms\Components\Field;
+use Filament\Tables\Columns\Column;
+use Illuminate\Contracts\Support\Htmlable;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
-class FieldWrapper extends Field
+class ColumnWrapper extends Column
 {
-
-    public function getLabel(): string|\Illuminate\Contracts\Support\Htmlable|null
+    public function getLabel(): string | Htmlable
     {
-        if (filled($label = $this->getBaseLabel())) {
-            return $label;
-        }
-
-        return TranslationHelper::translateWithFallback($this->getName(), 'fields');
+        return TranslationHelper::translateWithFallback($this->getName(), 'columns');
     }
 }

@@ -2,18 +2,17 @@
 
 namespace Rodrigofs\FilamentSmartTranslate\Support\Overrides;
 
-use Filament\Forms\Components\Field;
+use Filament\Infolists\Components\Entry;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
-class FieldWrapper extends Field
+class EntryWrapper extends Entry
 {
-
-    public function getLabel(): string|\Illuminate\Contracts\Support\Htmlable|null
+    public function getLabel(): string | \Illuminate\Contracts\Support\Htmlable | null
     {
         if (filled($label = $this->getBaseLabel())) {
             return $label;
         }
 
-        return TranslationHelper::translateWithFallback($this->getName(), 'fields');
+        return TranslationHelper::translateWithFallback($this->getName(), 'entries');
     }
 }
