@@ -22,7 +22,7 @@ trait PageTranslateble
             return self::$navigationGroup;
         }
 
-        return TranslationHelper::translateWithFallback(self::$navigationGroup, 'navigation_groups');
+        return __(TranslationHelper::translateWithFallback(self::$navigationGroup, 'navigations'));
     }
 
     public function getModelLabel(): ?string
@@ -32,6 +32,6 @@ trait PageTranslateble
             return null;
         }
 
-        return TranslationHelper::translateWithFallback($parentLabel, 'resource_labels');
+        return __(TranslationHelper::translateWithFallback($parentLabel, 'resources'));
     }
 }
