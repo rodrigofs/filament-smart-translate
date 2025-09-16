@@ -6,9 +6,10 @@
 [![Coverage](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml)
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
+![Packagist Downloads](https://img.shields.io/packagist/dt/rodrigofs/filament-smart-translate?style=for-the-badge&logo=packagist&logoColor=white)
 ![Filament v4](https://img.shields.io/badge/Filament-v4.0+-FF6B35?style=for-the-badge&logo=laravel)
 ![Laravel](https://img.shields.io/badge/Laravel-v12+-FF2D20?style=for-the-badge&logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=for-the-badge&logo=php)
+![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php)
 
 **A comprehensive Laravel package designed exclusively for Filament v4 applications** that provides automatic translation support for all Filament components. **Form fields, table columns, actions, and layout components** work automatically with zero configuration. **Resources, Pages, and Clusters** require simple trait implementation for full translation support.
 
@@ -18,12 +19,9 @@
 - **⚡ Zero Configuration**: Form fields, columns, actions work instantly with zero configuration
 - **🔧 Trait-Based Architecture**: Resources, Pages, Clusters require simple trait addition
 - **🎛️ Smart Fallback System**: Advanced fallback strategies with extensible architecture
-- **⚡ Performance Optimized**: Efficient translation with minimal overhead and strategy instance reuse
 - **🌐 Multi-locale Support**: Full support for Laravel's multi-language features
 - **📊 Status Command**: Visual overview of implementation status and missing translations
 - **🔄 Service Provider Integration**: Leverages Filament v4's component configuration system
-- **🧪 Fully Tested**: 152+ tests with 76.3% coverage ensuring reliability
-- **🚀 CI/CD Ready**: Automated testing, code style, PHPStan, and release workflows
 
 ## 📦 Installation
 
@@ -128,10 +126,11 @@ The package provides **two levels of translation**:
 
 These components are automatically configured to use `translateLabel()`:
 
-- **Form Fields**: `TextInput`, `Select`, `Checkbox`, etc.
-- **Table Columns**: `TextColumn`, `BooleanColumn`, etc.
-- **Actions**: `CreateAction`, `EditAction`, `DeleteAction`, etc.
-- **Layout Components**: `Section`, `Tabs`, `Tab`
+- **Form Fields**: `TextInput`, `Select`, `Checkbox`, `Textarea`, `DatePicker`, etc.
+- **Table Columns**: `TextColumn`, `BooleanColumn`, `SelectColumn`, etc.
+- **Infolist Entries**: `TextEntry`, `IconEntry`, `ImageEntry`, etc.
+- **Actions**: `CreateAction`, `EditAction`, `DeleteAction`, `BulkAction`, etc.
+- **Layout Components**: `Section`, `Tabs`, `Tab`, `Group`, `Fieldset`
 
 ### 🔧 Trait-Based Translation (Manual Implementation Required)
 
@@ -176,8 +175,8 @@ class UserResource extends Resource
 ```json
 // lang/pt_BR.json
 {
-    "resource_labels.user": "Usuário",
-    "navigation_groups.user_management": "Gerenciamento de Usuários"
+    "resources.user": "Usuário",
+    "navigations.user_management": "Gerenciamento de Usuários"
 }
 ```
 
@@ -228,7 +227,7 @@ class UserManagement extends Cluster
 ```json
 // lang/pt_BR.json
 {
-    "cluster.user_management": "Gerenciamento de Usuários"
+    "clusters.user_management": "Gerenciamento de Usuários"
 }
 ```
 
@@ -238,6 +237,7 @@ class UserManagement extends Cluster
 |---|---|---|---|
 | **Form Fields** | ✅ Yes | ❌ No | Field labels |
 | **Table Columns** | ✅ Yes | ❌ No | Column headers |
+| **Infolist Entries** | ✅ Yes | ❌ No | Entry labels |
 | **Actions** | ✅ Yes | ❌ No | Action labels |
 | **Layout Components** | ✅ Yes | ❌ No | Section/Tab labels |
 | **Resources** | ❌ No | ✅ Yes | Model labels, navigation groups |
@@ -256,40 +256,52 @@ The package works without configuration, but you can customize its behavior:
 return [
     // Enable/disable the entire translation system
     'enabled' => env('FILAMENT_SMART_TRANSLATE_ENABLED', true),
-    
+
     // Component-specific settings
     'components' => [
-        'resource_labels' => [
+        'resources' => [
             'enabled' => true,
-            'fallback_strategy' => 'original' // humanize, original, title_case
+            'fallback_strategy' => 'lower_case'
         ],
         'navigations' => [
             'enabled' => true,
-            'fallback_strategy' => 'original'
+            'fallback_strategy' => 'lower_case'
         ],
         'actions' => [
             'enabled' => true,
-            'fallback_strategy' => 'original'
+            'fallback_strategy' => 'lower_case'
         ],
         'clusters' => [
             'enabled' => true,
-            'fallback_strategy' => 'original'
+            'fallback_strategy' => 'lower_case'
         ],
         'pages' => [
             'enabled' => true,
-            'fallback_strategy' => 'original'
+            'fallback_strategy' => 'lower_case'
         ],
-        'navigation_groups' => [
+        'fields' => [
             'enabled' => true,
-            'fallback_strategy' => 'original'
+            'fallback_strategy' => 'lower_case'
+        ],
+        'schemas' => [
+            'enabled' => true,
+            'fallback_strategy' => 'lower_case'
+        ],
+        'entries' => [
+            'enabled' => true,
+            'fallback_strategy' => 'lower_case'
+        ],
+        'columns' => [
+            'enabled' => true,
+            'fallback_strategy' => 'lower_case'
         ]
     ],
-    
+
     // Custom fallback strategies
     'fallback_strategies' => [
         // 'custom_strategy' => \App\Strategies\CustomFallbackStrategy::class,
     ],
-    
+
     // Debug settings
     'debug' => [
         'log_missing_translations' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
@@ -333,20 +345,29 @@ Converts keys to human-readable format:
 
 **Best for:** Development environments or when you want automatic readable labels without creating translations.
 
-#### 3. `title_case` Strategy
-Applies title case formatting:
+#### 3. `lower_case` Strategy
+Converts keys to lowercase with hyphens (custom implementation):
 
 ```php
-'fallback_strategy' => 'title_case'
+'fallback_strategy' => 'lower_case'
 ```
 
 **Examples:**
-- `user name` → `User Name`  
-- `email address` → `Email Address`
-- `profile data` → `Profile Data`
-- `user-name field` → `User-name Field`
+- `user_name` → `user-name`
+- `email_address` → `email-address`
+- `first_name_field` → `first-name-field`
+- `module.user_settings` → `user-settings` (after last dot)
 
-**Best for:** When keys are already separated by spaces and you want proper capitalization.
+**Best for:** Modern UI with clean, lowercase styling and consistent hyphen separators.
+
+#### 4. `title_case` Strategy (Deprecated Alias)
+This is an alias for the `lower_case` strategy, maintained for backward compatibility:
+
+```php
+'fallback_strategy' => 'title_case' // Resolves to lower_case strategy
+```
+
+**Note:** Use `lower_case` directly for new implementations. This alias may be removed in future versions.
 
 ### Component-Specific Fallback Configuration
 
@@ -354,25 +375,29 @@ You can configure different fallback strategies for different component types:
 
 ```php
 'components' => [
-    'resource_labels' => [
+    'fields' => [
         'enabled' => true,
-        'fallback_strategy' => 'humanize' // User-friendly for resource names
+        'fallback_strategy' => 'original' // Default configuration
+    ],
+    'columns' => [
+        'enabled' => true,
+        'fallback_strategy' => 'original' // Default configuration
+    ],
+    'entries' => [
+        'enabled' => true,
+        'fallback_strategy' => 'original' // Default configuration
+    ],
+    'resources' => [
+        'enabled' => true,
+        'fallback_strategy' => 'original' // Default configuration
     ],
     'navigations' => [
         'enabled' => true,
-        'fallback_strategy' => 'title_case' // Clean navigation labels
+        'fallback_strategy' => 'original' // Default configuration
     ],
     'actions' => [
         'enabled' => true,
-        'fallback_strategy' => 'original' // Keep action names as-is
-    ],
-    'clusters' => [
-        'enabled' => true,
-        'fallback_strategy' => 'humanize' // Readable cluster names
-    ],
-    'pages' => [
-        'enabled' => true,
-        'fallback_strategy' => 'title_case' // Professional page names
+        'fallback_strategy' => 'original' // Default configuration
     ]
 ]
 ```
@@ -414,28 +439,13 @@ class UppercaseStrategy implements FallbackStrategyInterface
 ]
 ```
 
-#### 3. Using Closures for Simple Strategies
-
-For simple transformations, you can use closures directly in the configuration:
-
-```php
-'fallback_strategies' => [
-    'prefix_strategy' => function ($key) {
-        return '🔸 ' . ucfirst($key);
-    },
-    'snake_to_kebab' => function ($key) {
-        return str_replace('_', '-', $key);
-    }
-],
-```
-
 ### Fallback Strategy Architecture
 
 The fallback system uses a sophisticated architecture with these components:
 
 - **`FallbackStrategyInterface`**: Contract that all strategies must implement
 - **`FallbackStrategyManager`**: Resolves and reuses strategy instances during request lifecycle
-- **Built-in Strategies**: `HumanizeStrategy`, `OriginalStrategy`, `TitleCaseStrategy`
+- **Built-in Strategies**: `HumanizeStrategy`, `OriginalStrategy`, `LowerCaseStrategy`
 - **Custom Strategy Support**: Full support for user-defined strategies
 
 #### Strategy Resolution Flow
@@ -514,10 +524,10 @@ The package supports multiple translation key patterns with intelligent fallback
 ```json
 // lang/en.json
 {
-    "resource_labels.user": "User",
-    "navigation_groups.admin": "Administration",
+    "resources.user": "User",
+    "navigations.admin": "Administration",
     "actions.create": "Create",
-    "cluster.user_management": "User Management"
+    "clusters.user_management": "User Management"
 }
 ```
 
@@ -536,26 +546,11 @@ The package supports multiple translation key patterns with intelligent fallback
 
 The package tries to find translations in this order:
 
-1. **Component-prefixed key**: `resource_labels.user`
-2. **Direct key**: `user`  
+1. **Component-prefixed key**: `resources.user`
+2. **Direct key**: `user`
 3. **Fallback strategy**: Applied based on component configuration
 
 This intelligent resolution ensures maximum flexibility while maintaining clean translation files.
-
-### Nested Keys (Alternative PHP files)
-```php
-// lang/en/navigation.php
-return [
-    'user_management' => 'User Management',
-    'settings' => 'Settings',
-];
-
-// lang/en/resource_labels.php  
-return [
-    'user' => 'User',
-    'post' => 'Post',
-];
-```
 
 ## 💡 Examples
 
@@ -657,10 +652,10 @@ class UserResource extends Resource
     "first_name": "Primeiro Nome",
     "last_name": "Último Nome",
     "profile": "Perfil",
-    "resource_labels.user": "Usuário", 
-    "navigation_groups.user_management": "Gerenciamento de Usuários",
+    "resources.user": "Usuário",
+    "navigations.user_management": "Gerenciamento de Usuários",
     "actions.create": "Criar",
-    "actions.edit": "Editar", 
+    "actions.edit": "Editar",
     "actions.delete": "Excluir"
 }
 ```
@@ -702,11 +697,11 @@ php artisan filament-smart-translate:status
       └─ app/Filament/Clusters/AdminCluster.php
 
   🔧 Component Coverage:
-    ✓ Resource Labels (original)
-    ✓ Navigation (humanize)
-    ✓ Actions (title_case)
-    ✓ Clusters (original)
-    ✓ Pages (original)
+    ✓ Resources (lower_case)
+    ✓ Navigations (lower_case)
+    ✓ Actions (lower_case)
+    ✓ Clusters (lower_case)
+    ✓ Pages (lower_case)
 
   📊 Coverage Summary:
     ▓ Active components: 5/5 (100%)
@@ -718,34 +713,6 @@ php artisan filament-smart-translate:status
      • PageTranslateble - For pages with navigation groups
      • ClusterTranslateble - For clusters with custom breadcrumbs
 ```
-
-## 🧪 Testing
-
-The package includes a comprehensive test suite with 152+ tests:
-
-```bash
-# Run all tests
-composer test
-
-# Run tests with coverage
-composer test-coverage
-
-# Run code formatting
-composer pint
-
-# Run static analysis
-composer phpstan
-
-# Run complete quality check
-composer quality
-```
-
-**Test Coverage Highlights:**
-- **76.3%** overall coverage
-- **100%** coverage on all fallback strategies
-- **100%** coverage on core translation logic
-- Comprehensive integration tests with Filament components
-- Edge case handling and error scenarios
 
 ## 🔧 Troubleshooting
 
@@ -824,9 +791,9 @@ class CustomStrategy implements FallbackStrategyInterface
 
 The package is optimized for performance:
 
-- **Strategy reuse**: Fallback strategy instances are reused within the same request
-- **Minimal overhead**: Only processes components that need translation
-- **Lazy loading**: Translation only happens when needed
+- **Strategy reuse**: Fallback strategy instances are cached and reused within the same request
+- **Lazy evaluation**: Translation is deferred using closures until labels are actually rendered
+- **Efficient caching**: Built-in strategy manager prevents redundant class instantiation
 
 If you experience issues:
 
@@ -850,7 +817,7 @@ The package uses a clean, extensible architecture:
 - **`FallbackStrategyInterface`**: Contract for all fallback strategies
 - **Built-in Strategies**: `HumanizeStrategy`, `OriginalStrategy`, `TitleCaseStrategy`
 - **Strategy Resolution**: Automatic class and closure resolution
-- **Performance Optimization**: Strategy instances reused for optimal performance
+- **Performance Optimization**: Strategy instances cached and lazy evaluation with closures
 
 ### Global Component Configuration
 
@@ -865,8 +832,7 @@ Field::configureUsing(function (Field $component): void {
 
 ## 📖 Requirements
 
-- **PHP**: 8.4+
-- **Laravel**: 12+
+- **PHP**: 8.2+
 - **Filament**: 4.0+
 
 ## 🤝 Contributing

@@ -1,61 +1,61 @@
 <?php
 
-use Rodrigofs\FilamentSmartTranslate\Support\Fallback\TitleCaseStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyManager;
 
 it('transforms keys to title case', function () {
-    $strategy = new TitleCaseStrategy();
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('user name'))->toBe('User Name');
-    expect($strategy->apply('user profile data'))->toBe('User Profile Data');
-    expect($strategy->apply('first name field'))->toBe('First Name Field');
+    expect($strategy->apply('user_name'))->toBe('user-name');
+    expect($strategy->apply('user-profile-data'))->toBe('user-profile-data');
+    expect($strategy->apply('first_name_field'))->toBe('first-name-field');
 });
 
 it('handles single words correctly', function () {
-    $strategy = new TitleCaseStrategy();
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('user'))->toBe('User');
-    expect($strategy->apply('name'))->toBe('Name');
-    expect($strategy->apply('data'))->toBe('Data');
+    expect($strategy->apply('user'))->toBe('user');
+    expect($strategy->apply('name'))->toBe('name');
+    expect($strategy->apply('data'))->toBe('data');
 });
 
 it('handles empty strings', function () {
-    $strategy = new TitleCaseStrategy();
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
     expect($strategy->apply(''))->toBe('');
 });
 
 it('handles mixed case input', function () {
-    $strategy = new TitleCaseStrategy();
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('uSer nAmE'))->toBe('USer NAmE');
-    expect($strategy->apply('PROFILE DATA'))->toBe('PROFILE DATA');
+    expect($strategy->apply('uSer_nAmE'))->toBe('user-name');
+    expect($strategy->apply('PROFILE-DATA'))->toBe('profile-data');
 });
 
 it('handles special characters and separators', function () {
-    $strategy = new TitleCaseStrategy();
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('user-name field'))->toBe('User-name Field');
-    expect($strategy->apply('user_name data'))->toBe('User_name Data');
-    expect($strategy->apply('user.name@domain'))->toBe('User.name@domain');
+    expect($strategy->apply('user-name_field'))->toBe('user-name-field');
+    expect($strategy->apply('user_name-data'))->toBe('user-name-data');
+    expect($strategy->apply('user.name@domain'))->toBe('name@domain');
 });
 
-it('handles numbers correctly', function () {
-    $strategy = new TitleCaseStrategy();
+it('handles dotted keys correctly', function () {
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('user 123 name'))->toBe('User 123 Name');
-    expect($strategy->apply('field1 field2'))->toBe('Field1 Field2');
+    expect($strategy->apply('module.user_name'))->toBe('user-name'); // Takes after last dot
+    expect($strategy->apply('app.forms.field_name'))->toBe('field-name');
 });
 
-it('handles already title cased strings', function () {
-    $strategy = new TitleCaseStrategy();
+it('handles already formatted strings', function () {
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('User Name'))->toBe('User Name');
-    expect($strategy->apply('Profile Data'))->toBe('Profile Data');
+    expect($strategy->apply('User Name'))->toBe('user name');
+    expect($strategy->apply('Profile Data'))->toBe('profile data');
 });
 
-it('handles leading and trailing spaces', function () {
-    $strategy = new TitleCaseStrategy();
+it('handles special cases', function () {
+    $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('  user name  '))->toBe('  User Name  ');
-    expect($strategy->apply(' profile '))->toBe(' Profile ');
+    expect($strategy->apply('user name'))->toBe('user name'); // Spaces already present
+    expect($strategy->apply(' profile '))->toBe(' profile '); // Leading/trailing spaces
 });

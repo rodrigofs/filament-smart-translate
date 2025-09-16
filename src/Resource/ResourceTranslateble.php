@@ -14,7 +14,7 @@ trait ResourceTranslateble
 {
     public static function getModelLabel(): string
     {
-        return TranslationHelper::translateWithFallback(parent::getModelLabel(), 'resource_labels');
+        return __(TranslationHelper::translateWithFallback(parent::getModelLabel(), 'resources'));
     }
 
     public static function getNavigationGroup(): UnitEnum | string | null
@@ -27,6 +27,6 @@ trait ResourceTranslateble
             return self::$navigationGroup;
         }
 
-        return TranslationHelper::translateWithFallback(self::$navigationGroup, 'navigation_groups');
+        return __(TranslationHelper::translateWithFallback(self::$navigationGroup, 'navigations'));
     }
 }

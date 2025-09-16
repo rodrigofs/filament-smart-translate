@@ -27,7 +27,7 @@ it('translates model label when translation exists', function () {
 
 it('returns original model label when no translation exists', function () {
     $result = TranslationHelper::translateWithFallback('unknown_model', 'resource_labels');
-    expect($result)->toBe('unknown_model'); // Original strategy as configured
+    expect($result)->toBe('Unknown model'); // Original strategy as configured
 });
 
 it('translates navigation group when translation exists', function () {
@@ -37,7 +37,7 @@ it('translates navigation group when translation exists', function () {
 
 it('returns original navigation group when no translation exists', function () {
     $result = TranslationHelper::translateWithFallback('unknown_group', 'navigation_groups');
-    expect($result)->toBe('Unknown_Group'); // Default humanize strategy
+    expect($result)->toBe('Unknown group'); // Default original strategy
 });
 
 it('returns null for navigation group when null', function () {
@@ -83,28 +83,28 @@ it('handles enum navigation groups without translation', function () {
     };
 
     $result = $resource::getNavigationGroup();
-    expect($result)->toBe('Test_Group'); // Humanized since no translation exists
+    expect($result)->toBe('Test group'); // Original strategy since no translation exists
 });
 
 it('respects disabled translation setting for model labels', function () {
     Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('user', 'resource_labels');
-    expect($result)->toBe('user');
+    expect($result)->toBe('User');
 });
 
 it('respects disabled translation setting for navigation groups', function () {
     Config::set('filament-smart-translate.enabled', false);
 
     $result = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
-    expect($result)->toBe('admin');
+    expect($result)->toBe('Admin');
 });
 
 it('applies fallback strategy for model labels', function () {
     Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'original');
 
     $result = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
-    expect($result)->toBe('user profile');
+    expect($result)->toBe('User profile');
 });
 
 it('applies fallback strategy for navigation groups', function () {
@@ -112,7 +112,7 @@ it('applies fallback strategy for navigation groups', function () {
     Config::set('filament-smart-translate.components.navigation_groups.enabled', true);
 
     $result = TranslationHelper::translateWithFallback('user management', 'navigation_groups');
-    expect($result)->toBe('user management');
+    expect($result)->toBe('User management');
 });
 
 it('trait properly delegates to TranslationHelper for model labels', function () {
@@ -126,7 +126,7 @@ it('trait properly delegates to TranslationHelper for model labels', function ()
 
     // Mock parent behavior by calling the TranslationHelper directly with what parent would return
     $result = TranslationHelper::translateWithFallback('test_model', 'resource_labels');
-    expect($result)->toBe('test_model'); // Original strategy as configured
+    expect($result)->toBe('Test model'); // Original strategy as configured
 });
 
 it('trait properly delegates to TranslationHelper for navigation groups', function () {
@@ -140,7 +140,7 @@ it('trait properly delegates to TranslationHelper for navigation groups', functi
     };
 
     $result = $resource::getNavigationGroup();
-    expect($result)->toBe('Test_Group'); // Humanized version since no translation exists
+    expect($result)->toBe('Test group'); // Humanized version since no translation exists
 });
 
 it('returns enum navigation group unchanged in resource', function () {

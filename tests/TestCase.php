@@ -59,11 +59,7 @@ class TestCase extends Orchestra
                 'log_missing_translations' => false,
                 'log_fallback_usage' => false,
             ],
-            'fallback_strategies' => [
-                'humanize' => fn ($key) => \Illuminate\Support\Str::title(\Illuminate\Support\Str::snake($key, ' ')),
-                'original' => fn ($key) => $key,
-                'title_case' => fn ($key) => ucwords(str_replace(['_', '-'], ' ', $key)),
-            ],
+            'fallback_strategies' => [],
         ]);
 
         $app['config']->set('app.locale', 'pt_BR');

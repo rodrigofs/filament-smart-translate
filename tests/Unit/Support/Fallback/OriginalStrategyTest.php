@@ -1,12 +1,12 @@
 <?php
 
-use Rodrigofs\FilamentSmartTranslate\Support\Fallback\OriginalStrategy;
+use Rodrigofs\FilamentSmartTranslate\Support\Fallback\Strategies\OriginalStrategy;
 
-it('returns the original key unchanged', function () {
+it('transforms keys to readable format', function () {
     $strategy = new OriginalStrategy();
 
-    expect($strategy->apply('user_name'))->toBe('user_name');
-    expect($strategy->apply('userName'))->toBe('userName');
+    expect($strategy->apply('user_name'))->toBe('User name');
+    expect($strategy->apply('userName'))->toBe('UserName');
     expect($strategy->apply('User Name'))->toBe('User Name');
 });
 
@@ -19,8 +19,8 @@ it('handles empty strings', function () {
 it('handles special characters and numbers', function () {
     $strategy = new OriginalStrategy();
 
-    expect($strategy->apply('user-name_123'))->toBe('user-name_123');
-    expect($strategy->apply('email@domain.com'))->toBe('email@domain.com');
+    expect($strategy->apply('user-name_123'))->toBe('User name 123');
+    expect($strategy->apply('email@domain.com'))->toBe('Com');
     expect($strategy->apply('!@#$%^&*()'))->toBe('!@#$%^&*()');
 });
 
@@ -34,6 +34,6 @@ it('handles whitespace correctly', function () {
 it('handles unicode characters', function () {
     $strategy = new OriginalStrategy();
 
-    expect($strategy->apply('usuário_nome'))->toBe('usuário_nome');
+    expect($strategy->apply('usuário_nome'))->toBe('Usuário nome');
     expect($strategy->apply('测试用户'))->toBe('测试用户');
 });

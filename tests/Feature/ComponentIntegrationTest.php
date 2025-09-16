@@ -70,7 +70,7 @@ it('supports multiple fallback strategies', function () {
     Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'title_case');
     $result3 = TranslationHelper::translateWithFallback('user profile', 'resource_labels');
 
-    expect($result1)->toBe('unknown_key');
-    expect($result2)->toBe('User_Profile');
-    expect($result3)->toBe('User Profile');
+    expect($result1)->toBe('Unknown key');  // Original strategy: afterLast('.') + replace + ucfirst
+    expect($result2)->toBe('User Profile');  // Humanize strategy: afterLast('.') + replace + title
+    expect($result3)->toBe('user profile');  // Title_case strategy (alias for lower_case): afterLast('.') + replace + lower
 });

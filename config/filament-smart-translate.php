@@ -16,9 +16,9 @@ return [
     | Fine-grained control over which components should be auto-translated
     */
     'components' => [
-        'resource_labels' => [
+        'resources' => [
             'enabled' => true,
-            'fallback_strategy' => 'original', // humanize, original, title_case
+            'fallback_strategy' => 'original', // humanize, original, lower_case
         ],
         'navigations' => [
             'enabled' => true,
@@ -36,7 +36,19 @@ return [
             'enabled' => true,
             'fallback_strategy' => 'original',
         ],
-        'navigation_groups' => [
+        'fields' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original',
+        ],
+        'schemas' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original',
+        ],
+        'entries' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original',
+        ],
+        'columns' => [
             'enabled' => true,
             'fallback_strategy' => 'original',
         ],

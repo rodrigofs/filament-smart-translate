@@ -109,15 +109,15 @@ it('traits respect global translation disabled setting', function () {
 
     // Test cluster
     $result1 = TranslationHelper::translateWithFallback('admin', 'clusters');
-    expect($result1)->toBe('admin');
+    expect($result1)->toBe('Admin');
 
     // Test resource
     $result2 = TranslationHelper::translateWithFallback('user', 'resource_labels');
-    expect($result2)->toBe('user');
+    expect($result2)->toBe('User');
 
     // Test navigation group
     $result3 = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
-    expect($result3)->toBe('admin');
+    expect($result3)->toBe('Admin');
 });
 
 // Test trait with component-specific disabled setting
@@ -127,13 +127,13 @@ it('traits respect component-specific disabled settings', function () {
     Config::set('filament-smart-translate.components.navigation_groups.enabled', false);
 
     $result1 = TranslationHelper::translateWithFallback('admin', 'clusters');
-    expect($result1)->toBe('admin');
+    expect($result1)->toBe('Admin');
 
     $result2 = TranslationHelper::translateWithFallback('user', 'resource_labels');
-    expect($result2)->toBe('user');
+    expect($result2)->toBe('User');
 
     $result3 = TranslationHelper::translateWithFallback('admin', 'navigation_groups');
-    expect($result3)->toBe('admin');
+    expect($result3)->toBe('Admin');
 });
 
 // Test trait behavior with different fallback strategies
@@ -143,13 +143,13 @@ it('traits use correct fallback strategies', function () {
     Config::set('filament-smart-translate.components.navigation_groups.fallback_strategy', 'original');
 
     $result1 = TranslationHelper::translateWithFallback('user settings', 'clusters');
-    expect($result1)->toBe('User Settings');
+    expect($result1)->toBe('user settings');
 
     $result2 = TranslationHelper::translateWithFallback('user_profile', 'resource_labels');
-    expect($result2)->toBe('User_Profile');
+    expect($result2)->toBe('User Profile');
 
     $result3 = TranslationHelper::translateWithFallback('user_management', 'navigation_groups');
-    expect($result3)->toBe('user_management');
+    expect($result3)->toBe('User management');
 });
 
 // Test the actual code paths not covered in the traits
@@ -185,7 +185,7 @@ it('page trait handles enum navigation groups correctly', function () {
     };
 
     $result = $page::getNavigationGroup();
-    expect($result)->toBe('Test_Group'); // Should be translated with fallback strategy
+    expect($result)->toBe('Test group'); // Should use original strategy for unknown component
 });
 
 // Test ResourceTranslateble getModelLabel line 15 coverage
