@@ -35,7 +35,7 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
     public function mount(): void
     {
-        $this->locale = 'all'; // Start with all locales visible
+        $this->locale = app()->getLocale(); // Start with current locale
         $this->loadTranslations();
         $this->loadStatistics();
     }
@@ -61,84 +61,40 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
     protected function loadTranslations(): void
     {
-        $allTranslations = collect();
+        try {
+            $translations = $this->getTranslationService()->loadTranslations($this->locale);
 
-        // Load translations for all available locales
-        foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-            try {
-                $translations = $this->getTranslationService()->loadTranslations($locale);
+            $this->translations = $translations->map(function ($value, $key) {
+                $data = new TranslationData($key, $value, $this->locale);
 
-                $localeTranslations = $translations->map(function ($value, $key) use ($locale) {
-                    $data = new TranslationData($key, $value, $locale);
-
-                    return [
-                        'key' => $data->key,
-                        'value' => $data->value,
-                        'locale' => $data->locale,
-                        'category' => $data->getCategory(),
-                        'length' => $data->getLength(),
-                        'is_empty' => $data->isEmpty(),
-                        'is_long' => $data->isLong(),
-                    ];
-                });
-
-                $allTranslations = $allTranslations->merge($localeTranslations->values());
-            } catch (\Exception $e) {
-                // Skip this locale if there's an error loading it
-                continue;
-            }
+                return [
+                    'key' => $data->key,
+                    'value' => $data->value,
+                    'locale' => $data->locale,
+                    'category' => $data->getCategory(),
+                    'length' => $data->getLength(),
+                    'is_empty' => $data->isEmpty(),
+                    'is_long' => $data->isLong(),
+                ];
+            });
+        } catch (\Exception $e) {
+            // If there's an error loading translations, use empty collection
+            $this->translations = collect();
         }
-
-        // If a specific locale is selected, filter to show only that locale
-        if ($this->locale && $this->locale !== 'all') {
-            $allTranslations = $allTranslations->filter(fn($translation) => $translation['locale'] === $this->locale);
-        }
-
-        $this->translations = $allTranslations;
     }
 
     protected function loadStatistics(): void
     {
-        if ($this->locale === 'all') {
-            // Calculate combined statistics for all locales
-            $totalStats = [
+        try {
+            $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
+        } catch (\Exception $e) {
+            // Fallback to empty statistics if locale is invalid
+            $this->statistics = [
                 'total' => 0,
                 'empty' => 0,
                 'long' => 0,
                 'average_length' => 0
             ];
-
-            $allLengths = [];
-            foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-                try {
-                    $stats = $this->getTranslationService()->getStatistics($locale);
-                    $totalStats['total'] += $stats['total'];
-                    $totalStats['empty'] += $stats['empty'];
-                    $totalStats['long'] += $stats['long'];
-
-                    // Collect all lengths for average calculation
-                    $translations = $this->getTranslationService()->loadTranslations($locale);
-                    $allLengths = array_merge($allLengths, $translations->map(fn($value) => strlen($value))->toArray());
-                } catch (\Exception $e) {
-                    // Skip this locale if there's an error
-                    continue;
-                }
-            }
-
-            $totalStats['average_length'] = count($allLengths) > 0 ? round(array_sum($allLengths) / count($allLengths), 2) : 0;
-            $this->statistics = $totalStats;
-        } else {
-            try {
-                $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
-            } catch (\Exception $e) {
-                // Fallback to empty statistics if locale is invalid
-                $this->statistics = [
-                    'total' => 0,
-                    'empty' => 0,
-                    'long' => 0,
-                    'average_length' => 0
-                ];
-            }
         }
     }
 
@@ -489,12 +445,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->form([
                     Select::make('locale')
                         ->label('Select Language')
-                        ->options(array_merge(
-                            ['all' => 'All Locales'],
-                            array_combine(
-                                $this->getTranslationService()->getAvailableLocales(),
-                                $this->getTranslationService()->getAvailableLocales()
-                            )
+                        ->options(array_combine(
+                            $this->getTranslationService()->getAvailableLocales(),
+                            $this->getTranslationService()->getAvailableLocales()
                         ))
                         ->default($this->locale)
                         ->required(),
@@ -503,10 +456,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     $this->locale = $data['locale'];
                     $this->refreshData();
 
-                    $localeDisplay = $this->locale === 'all' ? 'all locales' : $this->locale;
                     Notification::make()
                         ->title('Language changed')
-                        ->body("Displaying translations for: {$localeDisplay}")
+                        ->body("Displaying translations for: {$this->locale}")
                         ->success()
                         ->send();
                 }),
@@ -527,19 +479,14 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->label('Export')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(function () {
-                    if ($this->locale === 'all') {
-                        // Export all locales as a zip file
-                        return $this->exportAllLocales();
-                    } else {
-                        $data = $this->getTranslationService()->exportTranslations($this->locale);
+                    $data = $this->getTranslationService()->exportTranslations($this->locale);
 
-                        return response()->streamDownload(function () use ($data) {
-                            echo json_encode(
-                                $data,
-                                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                            );
-                        }, "translations-{$this->locale}.json");
-                    }
+                    return response()->streamDownload(function () use ($data) {
+                        echo json_encode(
+                            $data,
+                            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                        );
+                    }, "translations-{$this->locale}.json");
                 })
                 ->color('gray'),
 
@@ -548,27 +495,13 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->icon('heroicon-o-shield-check')
                 ->action(function () {
                     try {
-                        if ($this->locale === 'all') {
-                            $backupPaths = [];
-                            foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-                                $backupPaths[] = $this->getTranslationService()->createBackup($locale);
-                            }
-                            $pathsText = implode(', ', $backupPaths);
+                        $backupPath = $this->getTranslationService()->createBackup($this->locale);
 
-                            Notification::make()
-                                ->title('Backups created')
-                                ->body("Backups saved for all locales: {$pathsText}")
-                                ->success()
-                                ->send();
-                        } else {
-                            $backupPath = $this->getTranslationService()->createBackup($this->locale);
-
-                            Notification::make()
-                                ->title('Backup created')
-                                ->body("Backup saved at: {$backupPath}")
-                                ->success()
-                                ->send();
-                        }
+                        Notification::make()
+                            ->title('Backup created')
+                            ->body("Backup saved at: {$backupPath}")
+                            ->success()
+                            ->send();
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title('Error creating backup')
@@ -599,22 +532,5 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->modalHeading('Translation Statistics')
                 ->color('info'),
         ];
-    }
-
-    protected function exportAllLocales()
-    {
-        $allTranslations = [];
-
-        foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-            $translations = $this->getTranslationService()->exportTranslations($locale);
-            $allTranslations[$locale] = $translations;
-        }
-
-        return response()->streamDownload(function () use ($allTranslations) {
-            echo json_encode(
-                $allTranslations,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-            );
-        }, "translations-all-locales.json");
     }
 }

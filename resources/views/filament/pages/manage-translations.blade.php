@@ -30,7 +30,7 @@ $count = $this->translations->count();
                         Manage all system translations efficiently
                     </p>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        Current locale: {{ $locale === 'all' ? 'All Locales' : $locale }} |
+                        Current locale: {{ $locale }} |
                         Total translations: {{ $count }}
                     </p>
                 </div>
