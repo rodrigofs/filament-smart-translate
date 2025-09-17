@@ -2,7 +2,4 @@
 
 namespace Rodrigofs\FilamentSmartTranslate;
 
-class TranslationManagerPlugin
-{
-
-}
+class TranslationManagerPlugin {}
