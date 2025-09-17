@@ -65,23 +65,28 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
         // Load translations for all available locales
         foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-            $translations = $this->getTranslationService()->loadTranslations($locale);
+            try {
+                $translations = $this->getTranslationService()->loadTranslations($locale);
 
-            $localeTranslations = $translations->map(function ($value, $key) use ($locale) {
-                $data = new TranslationData($key, $value, $locale);
+                $localeTranslations = $translations->map(function ($value, $key) use ($locale) {
+                    $data = new TranslationData($key, $value, $locale);
 
-                return [
-                    'key' => $data->key,
-                    'value' => $data->value,
-                    'locale' => $data->locale,
-                    'category' => $data->getCategory(),
-                    'length' => $data->getLength(),
-                    'is_empty' => $data->isEmpty(),
-                    'is_long' => $data->isLong(),
-                ];
-            });
+                    return [
+                        'key' => $data->key,
+                        'value' => $data->value,
+                        'locale' => $data->locale,
+                        'category' => $data->getCategory(),
+                        'length' => $data->getLength(),
+                        'is_empty' => $data->isEmpty(),
+                        'is_long' => $data->isLong(),
+                    ];
+                });
 
-            $allTranslations = $allTranslations->merge($localeTranslations->values());
+                $allTranslations = $allTranslations->merge($localeTranslations->values());
+            } catch (\Exception $e) {
+                // Skip this locale if there's an error loading it
+                continue;
+            }
         }
 
         // If a specific locale is selected, filter to show only that locale
@@ -105,20 +110,35 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
             $allLengths = [];
             foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
-                $stats = $this->getTranslationService()->getStatistics($locale);
-                $totalStats['total'] += $stats['total'];
-                $totalStats['empty'] += $stats['empty'];
-                $totalStats['long'] += $stats['long'];
+                try {
+                    $stats = $this->getTranslationService()->getStatistics($locale);
+                    $totalStats['total'] += $stats['total'];
+                    $totalStats['empty'] += $stats['empty'];
+                    $totalStats['long'] += $stats['long'];
 
-                // Collect all lengths for average calculation
-                $translations = $this->getTranslationService()->loadTranslations($locale);
-                $allLengths = array_merge($allLengths, $translations->map(fn($value) => strlen($value))->toArray());
+                    // Collect all lengths for average calculation
+                    $translations = $this->getTranslationService()->loadTranslations($locale);
+                    $allLengths = array_merge($allLengths, $translations->map(fn($value) => strlen($value))->toArray());
+                } catch (\Exception $e) {
+                    // Skip this locale if there's an error
+                    continue;
+                }
             }
 
             $totalStats['average_length'] = count($allLengths) > 0 ? round(array_sum($allLengths) / count($allLengths), 2) : 0;
             $this->statistics = $totalStats;
         } else {
-            $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
+            try {
+                $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
+            } catch (\Exception $e) {
+                // Fallback to empty statistics if locale is invalid
+                $this->statistics = [
+                    'total' => 0,
+                    'empty' => 0,
+                    'long' => 0,
+                    'average_length' => 0
+                ];
+            }
         }
     }
 
