@@ -5,9 +5,9 @@ use Filament\Pages\Page;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
-use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
