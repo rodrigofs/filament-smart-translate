@@ -34,7 +34,7 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
     public function mount(): void
     {
-        $this->locale = app()->getLocale();
+        $this->locale = 'all'; // Start with all locales visible
         $this->loadTranslations();
         $this->loadStatistics();
     }
@@ -60,59 +60,122 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
     protected function loadTranslations(): void
     {
-        $translations = $this->getTranslationService()->loadTranslations($this->locale);
+        $allTranslations = collect();
 
-        $this->translations = $translations->map(function ($value, $key) {
-            $data = new TranslationData($key, $value, $this->locale);
+        // Load translations for all available locales
+        foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
+            $translations = $this->getTranslationService()->loadTranslations($locale);
 
-            return [
-                'key' => $data->key,
-                'value' => $data->value,
-                'locale' => $data->locale,
-                'category' => $data->getCategory(),
-                'length' => $data->getLength(),
-                'is_empty' => ! $data->isEmpty(),
-                'is_long' => $data->isLong(),
-            ];
-        });
+            $localeTranslations = $translations->map(function ($value, $key) use ($locale) {
+                $data = new TranslationData($key, $value, $locale);
+
+                return [
+                    'key' => $data->key,
+                    'value' => $data->value,
+                    'locale' => $data->locale,
+                    'category' => $data->getCategory(),
+                    'length' => $data->getLength(),
+                    'is_empty' => $data->isEmpty(),
+                    'is_long' => $data->isLong(),
+                ];
+            });
+
+            $allTranslations = $allTranslations->merge($localeTranslations->values());
+        }
+
+        // If a specific locale is selected, filter to show only that locale
+        if ($this->locale && $this->locale !== 'all') {
+            $allTranslations = $allTranslations->filter(fn($translation) => $translation['locale'] === $this->locale);
+        }
+
+        $this->translations = $allTranslations;
     }
 
     protected function loadStatistics(): void
     {
-        $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
+        if ($this->locale === 'all') {
+            // Calculate combined statistics for all locales
+            $totalStats = [
+                'total' => 0,
+                'empty' => 0,
+                'long' => 0,
+                'average_length' => 0
+            ];
+
+            $allLengths = [];
+            foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
+                $stats = $this->getTranslationService()->getStatistics($locale);
+                $totalStats['total'] += $stats['total'];
+                $totalStats['empty'] += $stats['empty'];
+                $totalStats['long'] += $stats['long'];
+
+                // Collect all lengths for average calculation
+                $translations = $this->getTranslationService()->loadTranslations($locale);
+                $allLengths = array_merge($allLengths, $translations->map(fn($value) => strlen($value))->toArray());
+            }
+
+            $totalStats['average_length'] = count($allLengths) > 0 ? round(array_sum($allLengths) / count($allLengths), 2) : 0;
+            $this->statistics = $totalStats;
+        } else {
+            $this->statistics = $this->getTranslationService()->getStatistics($this->locale);
+        }
+    }
+
+    public function refreshTable(): void
+    {
+        $this->loadTranslations();
+        $this->loadStatistics();
+        $this->dispatch('$refresh');
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->records(function (int $page, int $recordsPerPage): LengthAwarePaginator {
+            ->records(function (int $page, int $recordsPerPage, ?string $search = null): LengthAwarePaginator {
+                $translations = $this->translations;
+
+                // Apply search filter
+                if ($search) {
+                    $translations = $translations->filter(function ($translation) use ($search) {
+                        return str_contains(strtolower($translation['key']), strtolower($search)) ||
+                               str_contains(strtolower($translation['value']), strtolower($search)) ||
+                               str_contains(strtolower($translation['category']), strtolower($search));
+                    });
+                }
 
                 $skip = ($page - 1) * $recordsPerPage;
 
                 return new LengthAwarePaginator(
-                    items: $this->translations->slice($skip, $recordsPerPage),
-                    total: $this->translations->count(),
+                    items: $translations->slice($skip, $recordsPerPage),
+                    total: $translations->count(),
                     perPage: $recordsPerPage,
-                    currentPage: $page
+                    currentPage: $page,
+                    options: ['path' => request()->url(), 'pageName' => 'page']
                 );
             })
             ->columns([
                 Tables\Columns\TextColumn::make('key')
-                    ->label('Chave de Tradução')
+                    ->label('Translation Key')
                     ->sortable()
                     ->searchable()
                     ->copyable()
                     ->limit(50),
 
                 Tables\Columns\TextColumn::make('value')
-                    ->label('Valor da Tradução')
+                    ->label('Translation Value')
                     ->sortable()
                     ->searchable()
                     ->limit(100)
                     ->wrap(),
 
+                Tables\Columns\TextColumn::make('locale')
+                    ->label('Locale')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('category')
-                    ->label('Categoria')
+                    ->label('Category')
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'auth' => 'info',
@@ -126,60 +189,78 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     }),
 
                 Tables\Columns\TextColumn::make('length')
-                    ->label('Tamanho')
+                    ->label('Length')
                     ->sortable()
                     ->alignCenter()
                     ->color(fn(int $state): string => $state > 100 ? 'warning' : 'gray'),
 
                 Tables\Columns\IconColumn::make('is_empty')
-                    ->label('Vazio')
+                    ->label('Empty')
                     ->boolean()
                     ->alignCenter(),
             ])
             ->headerActions([
                 Action::make('add_translation')
-                    ->label('Nova Tradução')
+                    ->label('New Translation')
                     ->icon('heroicon-o-plus')
                     ->color('primary')
                     ->schema([
                         Select::make('locale')
-                            ->label('Idioma')
+                            ->label('Language')
                             ->options(array_combine(
                                 $this->getTranslationService()->getAvailableLocales(),
                                 $this->getTranslationService()->getAvailableLocales()
                             ))
                             ->default($this->locale)
-                            ->required(),
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // Clear the key field when locale changes to revalidate
+                                $set('key', '');
+                            }),
 
                         TextInput::make('key')
-                            ->label('Chave')
+                            ->label('Key')
                             ->required()
                             ->rules([
                                 'string',
                                 'max:255',
                                 function ($attribute, $value, $fail) {
-                                    $translations = $this->getTranslationService()->loadTranslations($this->locale);
+                                    $locale = request()->input('mountedActionData.0.locale', $this->locale);
+                                    $translations = $this->getTranslationService()->loadTranslations($locale);
                                     if ($translations->has($value)) {
-                                        $fail('Esta chave já existe.');
+                                        $fail('This key already exists for this locale.');
                                     }
                                 },
                             ])
-                            ->placeholder('ex: resources.user'),
+                            ->placeholder('e.g: resources.user'),
 
                         Textarea::make('value')
-                            ->label('Tradução')
+                            ->label('Translation')
                             ->required()
                             ->maxLength(1000)
                             ->rows(3),
                     ])
-                    ->action(fn(array $data) => $this->addTranslation($data))
-                    ->successNotificationTitle('Tradução adicionada com sucesso!'),
+                    ->action(function (array $data) {
+                        $this->addTranslation($data);
+                        $this->refreshTable();
+                    })
+                    ->successNotificationTitle('Translation added successfully!'),
             ])
             ->recordActions([
                 Action::make('edit')
                     ->label('Edit')
                     ->icon('heroicon-o-pencil')
                     ->form([
+                        Select::make('locale')
+                            ->label('Language')
+                            ->options(array_combine(
+                                $this->getTranslationService()->getAvailableLocales(),
+                                $this->getTranslationService()->getAvailableLocales()
+                            ))
+                            ->required()
+                            ->reactive(),
+
                         TextInput::make('key')
                             ->label('Key')
                             ->required()
@@ -193,11 +274,13 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                             ->rows(3),
                     ])
                     ->fillForm(fn (array $record): array => [
+                        'locale' => $record['locale'],
                         'key' => $record['key'],
                         'value' => $record['value'],
                     ])
                     ->action(function (array $data, array $record): void {
-                        $this->updateTranslation($record['key'], $data['value']);
+                        $this->updateTranslation($record['locale'], $record['key'], $data['value'], $data['locale']);
+                        $this->refreshTable();
                     })
                     ->successNotificationTitle('Translation updated successfully!'),
 
@@ -209,7 +292,8 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ->modalHeading('Delete Translation')
                     ->modalDescription('Are you sure you want to delete this translation? This action cannot be undone.')
                     ->action(function (array $record): void {
-                        $this->deleteTranslation($record['key']);
+                        $this->deleteTranslation($record['locale'], $record['key']);
+                        $this->refreshTable();
                     })
                     ->successNotificationTitle('Translation deleted successfully!'),
 
@@ -217,18 +301,21 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
             ])
             ->toolbarActions([
                 \Filament\Actions\BulkAction::make('delete')
-                    ->label('Excluir Selecionadas')
+                    ->label('Delete Selected')
                     ->icon('heroicon-o-trash')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Excluir Traduções Selecionadas')
-                    ->modalDescription('Tem certeza de que deseja excluir as traduções selecionadas? Esta ação não pode ser desfeita.')
-                    ->action(fn(Collection $records) => $this->bulkDeleteTranslations($records->pluck('key')->toArray()))
-                    ->successNotificationTitle('Traduções excluídas com sucesso!'),
+                    ->modalHeading('Delete Selected Translations')
+                    ->modalDescription('Are you sure you want to delete the selected translations? This action cannot be undone.')
+                    ->action(function (Collection $records) {
+                        $this->bulkDeleteTranslations($records->toArray());
+                        $this->refreshTable();
+                    })
+                    ->successNotificationTitle('Translations deleted successfully!'),
             ])
             ->emptyStateIcon('heroicon-o-language')
-            ->emptyStateHeading('Nenhuma tradução encontrada')
-            ->emptyStateDescription('Comece adicionando uma nova tradução usando o botão acima.')
+            ->emptyStateHeading('No translations found')
+            ->emptyStateDescription('Start by adding a new translation using the button above.')
             ->striped()
             ->defaultSort('key');
     }
@@ -241,94 +328,95 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
             $this->getTranslationService()->addTranslation($locale, $data['key'], $data['value']);
 
-            // Update current locale if needed
-            if ($locale === $this->locale) {
-                $this->loadTranslations();
-                $this->loadStatistics();
+            Notification::make()
+                ->title('Translation added')
+                ->body("The translation '{$data['key']}' was added successfully for locale '{$locale}'.")
+                ->success()
+                ->send();
+
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Error adding translation')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function updateTranslation(string $originalLocale, string $key, string $value, string $newLocale): void
+    {
+        try {
+            // If locale changed, delete from original and add to new locale
+            if ($originalLocale !== $newLocale) {
+                $this->getTranslationService()->deleteTranslation($originalLocale, $key);
+                $this->getTranslationService()->addTranslation($newLocale, $key, $value);
+            } else {
+                $this->getTranslationService()->updateTranslation($originalLocale, $key, $value);
             }
 
             Notification::make()
-                ->title('Tradução adicionada')
-                ->body("A tradução '{$data['key']}' foi adicionada com sucesso.")
+                ->title('Translation updated')
+                ->body("The translation '{$key}' was updated successfully.")
                 ->success()
                 ->send();
 
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Erro ao adicionar tradução')
+                ->title('Error updating translation')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
     }
 
-    public function updateTranslation(string $key, string $value): void
+    public function deleteTranslation(string $locale, string $key): void
     {
         try {
-            $this->getTranslationService()->updateTranslation($this->locale, $key, $value);
-
-            $this->loadTranslations();
-            $this->loadStatistics();
+            $this->getTranslationService()->deleteTranslation($locale, $key);
 
             Notification::make()
-                ->title('Tradução atualizada')
-                ->body("A tradução '{$key}' foi atualizada com sucesso.")
+                ->title('Translation deleted')
+                ->body("The translation '{$key}' was deleted successfully from locale '{$locale}'.")
                 ->success()
                 ->send();
 
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Erro ao atualizar tradução')
+                ->title('Error deleting translation')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
     }
 
-    public function deleteTranslation(string $key): void
+    public function bulkDeleteTranslations(array $records): void
     {
         try {
-            $this->getTranslationService()->deleteTranslation($this->locale, $key);
+            $groupedByLocale = collect($records)->groupBy('locale');
+            $totalDeleted = 0;
+            $totalFailed = 0;
 
-            $this->loadTranslations();
-            $this->loadStatistics();
+            foreach ($groupedByLocale as $locale => $translations) {
+                $keys = $translations->pluck('key')->toArray();
+                $result = $this->getTranslationService()->bulkDeleteTranslations($locale, $keys);
 
-            Notification::make()
-                ->title('Tradução excluída')
-                ->body("A tradução '{$key}' foi excluída com sucesso.")
-                ->success()
-                ->send();
+                $successful = count($keys) - count($result);
+                $failed = count($result);
 
-        } catch (\Exception $e) {
-            Notification::make()
-                ->title('Erro ao excluir tradução')
-                ->body($e->getMessage())
-                ->danger()
-                ->send();
-        }
-    }
-
-    public function bulkDeleteTranslations(array $keys): void
-    {
-        try {
-            $result = $this->getTranslationService()->bulkDeleteTranslations($this->locale, $keys);
-
-            $this->loadTranslations();
-            $this->loadStatistics();
-
-            $successful = count($keys) - count($result);
-            $failed = count($result);
+                $totalDeleted += $successful;
+                $totalFailed += $failed;
+            }
 
             Notification::make()
                 ->title('Translations deleted')
-                ->body("Deleted {$successful} of " . count($keys) . " selected translations.")
+                ->body("Deleted {$totalDeleted} translations successfully.")
                 ->success()
                 ->send();
 
-            if ($failed > 0) {
+            if ($totalFailed > 0) {
                 Notification::make()
                     ->title('Some translations were not deleted')
-                    ->body("Failed to delete {$failed} translations.")
+                    ->body("Failed to delete {$totalFailed} translations.")
                     ->warning()
                     ->send();
             }
@@ -346,73 +434,94 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
     {
         return [
             Action::make('change_locale')
-                ->label('Alterar Idioma')
+                ->label('Change Language')
                 ->icon('heroicon-o-globe-alt')
                 ->form([
                     Select::make('locale')
-                        ->label('Selecionar Idioma')
-                        ->options(array_combine(
-                            $this->getTranslationService()->getAvailableLocales(),
-                            $this->getTranslationService()->getAvailableLocales()
+                        ->label('Select Language')
+                        ->options(array_merge(
+                            ['all' => 'All Locales'],
+                            array_combine(
+                                $this->getTranslationService()->getAvailableLocales(),
+                                $this->getTranslationService()->getAvailableLocales()
+                            )
                         ))
                         ->default($this->locale)
                         ->required(),
                 ])
                 ->action(function (array $data) {
                     $this->locale = $data['locale'];
-                    $this->loadTranslations();
-                    $this->loadStatistics();
+                    $this->refreshTable();
 
+                    $localeDisplay = $this->locale === 'all' ? 'all locales' : $this->locale;
                     Notification::make()
-                        ->title('Idioma alterado')
-                        ->body("Exibindo traduções para: {$this->locale}")
+                        ->title('Language changed')
+                        ->body("Displaying translations for: {$localeDisplay}")
                         ->success()
                         ->send();
                 }),
 
             Action::make('refresh')
-                ->label('Recarregar')
+                ->label('Refresh')
                 ->icon('heroicon-o-arrow-path')
                 ->action(function () {
-                    $this->loadTranslations();
-                    $this->loadStatistics();
+                    $this->refreshTable();
 
                     Notification::make()
-                        ->title('Traduções recarregadas')
+                        ->title('Translations refreshed')
                         ->success()
                         ->send();
                 }),
 
             Action::make('export')
-                ->label('Exportar')
+                ->label('Export')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->action(function () {
-                    $data = $this->getTranslationService()->exportTranslations($this->locale);
+                    if ($this->locale === 'all') {
+                        // Export all locales as a zip file
+                        return $this->exportAllLocales();
+                    } else {
+                        $data = $this->getTranslationService()->exportTranslations($this->locale);
 
-                    return response()->streamDownload(function () use ($data) {
-                        echo json_encode(
-                            $data,
-                            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                        );
-                    }, "translations-{$this->locale}.json");
+                        return response()->streamDownload(function () use ($data) {
+                            echo json_encode(
+                                $data,
+                                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                            );
+                        }, "translations-{$this->locale}.json");
+                    }
                 })
                 ->color('gray'),
 
             Action::make('backup')
-                ->label('Criar Backup')
+                ->label('Create Backup')
                 ->icon('heroicon-o-shield-check')
                 ->action(function () {
                     try {
-                        $backupPath = $this->getTranslationService()->createBackup($this->locale);
+                        if ($this->locale === 'all') {
+                            $backupPaths = [];
+                            foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
+                                $backupPaths[] = $this->getTranslationService()->createBackup($locale);
+                            }
+                            $pathsText = implode(', ', $backupPaths);
 
-                        Notification::make()
-                            ->title('Backup criado')
-                            ->body("Backup salvo em: {$backupPath}")
-                            ->success()
-                            ->send();
+                            Notification::make()
+                                ->title('Backups created')
+                                ->body("Backups saved for all locales: {$pathsText}")
+                                ->success()
+                                ->send();
+                        } else {
+                            $backupPath = $this->getTranslationService()->createBackup($this->locale);
+
+                            Notification::make()
+                                ->title('Backup created')
+                                ->body("Backup saved at: {$backupPath}")
+                                ->success()
+                                ->send();
+                        }
                     } catch (\Exception $e) {
                         Notification::make()
-                            ->title('Erro ao criar backup')
+                            ->title('Error creating backup')
                             ->body($e->getMessage())
                             ->danger()
                             ->send();
@@ -421,24 +530,41 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->color('warning'),
 
             Action::make('statistics')
-                ->label('Estatísticas')
+                ->label('Statistics')
                 ->icon('heroicon-o-chart-bar')
                 ->schema([
                     \Filament\Infolists\Components\TextEntry::make('total')
-                        ->label('Total de Traduções')
+                        ->label('Total Translations')
                         ->state($this->statistics['total'] ?? 0),
                     \Filament\Infolists\Components\TextEntry::make('empty')
-                        ->label('Traduções Vazias')
+                        ->label('Empty Translations')
                         ->state($this->statistics['empty'] ?? 0),
                     \Filament\Infolists\Components\TextEntry::make('long')
-                        ->label('Traduções Longas (>100 chars)')
+                        ->label('Long Translations (>100 chars)')
                         ->state($this->statistics['long'] ?? 0),
                     \Filament\Infolists\Components\TextEntry::make('average_length')
-                        ->label('Tamanho Médio')
+                        ->label('Average Length')
                         ->state($this->statistics['average_length'] ?? 0),
                 ])
-                ->modalHeading('Estatísticas das Traduções')
+                ->modalHeading('Translation Statistics')
                 ->color('info'),
         ];
+    }
+
+    protected function exportAllLocales()
+    {
+        $allTranslations = [];
+
+        foreach ($this->getTranslationService()->getAvailableLocales() as $locale) {
+            $translations = $this->getTranslationService()->exportTranslations($locale);
+            $allTranslations[$locale] = $translations;
+        }
+
+        return response()->streamDownload(function () use ($allTranslations) {
+            echo json_encode(
+                $allTranslations,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            );
+        }, "translations-all-locales.json");
     }
 }
