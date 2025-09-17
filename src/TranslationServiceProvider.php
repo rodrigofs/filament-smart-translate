@@ -21,40 +21,52 @@ use Illuminate\Support\ServiceProvider;
 use Rodrigofs\FilamentSmartTranslate\Support\Overrides\ColumnWrapper;
 use Rodrigofs\FilamentSmartTranslate\Support\Overrides\EntryWrapper;
 use Rodrigofs\FilamentSmartTranslate\Support\Overrides\FieldWrapper;
+use Rodrigofs\FilamentSmartTranslate\Services;
 
+use Spatie\LaravelPackageTools\Package;
+use Spatie\LaravelPackageTools\PackageServiceProvider;
 use function Filament\Support\get_model_label;
 
-final class TranslationServiceProvider extends ServiceProvider
+final class TranslationServiceProvider extends PackageServiceProvider
 {
-    public function register(): void
+
+    public static string $name = 'filament-smart-translate';
+
+
+    public function configurePackage(Package $package): void
     {
-        $this->mergeConfigFrom(
-            __DIR__ . '/../config/filament-smart-translate.php',
-            'filament-smart-translate'
-        );
+        $package->name('filament-smart-translate')
+            ->hasCommands($this->getCommands());
+
+        $configFileName = $package->shortName();
+
+        if (file_exists($package->basePath("/../config/{$configFileName}.php"))) {
+            $package->hasConfigFile();
+        }
+
+        if (file_exists($package->basePath('/../resources/views'))) {
+            $package->hasViews('filament-smart-translate');
+        }
     }
 
-    public function boot(): void
-    {
-        $this->publishConfiguration();
-        $this->registerCommands();
+    public function packageRegistered(): void {
+        // Register translation service
+        $this->app->singleton(Services\TranslationService::class, function ($app) {
+            return new Services\TranslationService(
+                base_path('lang'),
+                config('filament-smart-translate.available_locales', ['pt_BR', 'en', 'es', 'fr'])
+            );
+        });
+    }
+
+    public function packageBooted(): void {
         $this->configureFilamentComponents();
     }
-
-    private function publishConfiguration(): void
+    protected function getCommands(): array
     {
-        $this->publishes([
-            __DIR__ . '/../config/filament-smart-translate.php' => config_path('filament-smart-translate.php'),
-        ], 'filament-smart-translate-config');
-    }
-
-    private function registerCommands(): void
-    {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                Console\StatusCommand::class,
-            ]);
-        }
+        return [
+            Console\StatusCommand::class,
+        ];
     }
 
     private function configureFilamentComponents(): void
@@ -218,4 +230,5 @@ final class TranslationServiceProvider extends ServiceProvider
             $action->{$property}(fn () => __($translationKey, ['label' => $modelLabel]));
         }
     }
+
 }
