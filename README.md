@@ -94,9 +94,7 @@ For Resources, Pages, and Clusters to have translation, you must add the appropr
 
 ```php
 // Resources
-use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
-use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
-use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -155,8 +153,7 @@ To enable translation for Resources, Pages, and Clusters, you **must** add the a
 
 namespace App\Filament\Resources;
 
-use Filament\Resources\Resource;
-use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use Filament\Resources\Resource;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -189,8 +186,7 @@ class UserResource extends Resource
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
-use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
+use Filament\Pages\Page;use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
 
 class Settings extends Page
 {
@@ -211,8 +207,7 @@ class Settings extends Page
 
 namespace App\Filament\Clusters;
 
-use Filament\Clusters\Cluster;
-use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+use Filament\Clusters\Cluster;use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;
 
 class UserManagement extends Cluster
 {
@@ -584,11 +579,7 @@ With `pt_BR` locale and proper translations, the same resource automatically sho
 
 namespace App\Filament\Resources;
 
-use App\Models\User;
-use Filament\Forms;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
+use App\Models\User;use Filament\Forms;use Filament\Resources\Resource;use Filament\Tables;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
@@ -731,13 +722,11 @@ This is expected behavior. These components **require traits** to enable transla
 
 ```php
 // Add to your Resource
-use Rodrigofs\FilamentSmartTranslate\Resource\ResourceTranslateble;
 
 // Add to your Page  
-use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
 
 // Add to your Cluster
-use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+
 ```
 
 Run `php artisan filament-smart-translate:status` to see which files need traits.
