@@ -2,7 +2,7 @@
 
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentSmartTranslate\Page\PageTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {

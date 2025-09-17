@@ -2,7 +2,7 @@
 
 use Filament\Clusters\Cluster;
 use Illuminate\Support\Facades\Config;
-use Rodrigofs\FilamentSmartTranslate\Cluster\ClusterTranslateble;
+use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
 beforeEach(function () {
