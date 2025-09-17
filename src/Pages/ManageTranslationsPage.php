@@ -29,6 +29,7 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
     public Collection $translations;
     public string $locale;
     public array $statistics = [];
+    public int $refreshCounter = 0;
 
     private ?TranslationService $translationService = null;
 
@@ -123,15 +124,36 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
 
     public function refreshTable(): void
     {
+        // Clear any cache in the translation service
+        $this->getTranslationService()->clearCache();
+
+        // Reload data
         $this->loadTranslations();
         $this->loadStatistics();
-        $this->dispatch('$refresh');
+
+        // Increment refresh counter to trigger reactivity
+        $this->refreshCounter++;
+    }
+
+    public function refreshData(): void
+    {
+        $this->refreshTable();
+    }
+
+    public function updated($propertyName): void
+    {
+        // Refresh data when refreshCounter changes
+        if ($propertyName === 'refreshCounter') {
+            // This will cause Livewire to re-render the component
+        }
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->records(function (int $page, int $recordsPerPage, ?string $search = null): LengthAwarePaginator {
+                // Use refreshCounter to ensure we get fresh data
+                $_ = $this->refreshCounter;
                 $translations = $this->translations;
 
                 // Apply search filter
@@ -243,7 +265,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ])
                     ->action(function (array $data) {
                         $this->addTranslation($data);
-                        $this->refreshTable();
+                    })
+                    ->after(function () {
+                        $this->refreshData();
                     })
                     ->successNotificationTitle('Translation added successfully!'),
             ])
@@ -280,7 +304,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ])
                     ->action(function (array $data, array $record): void {
                         $this->updateTranslation($record['locale'], $record['key'], $data['value'], $data['locale']);
-                        $this->refreshTable();
+                    })
+                    ->after(function () {
+                        $this->refreshData();
                     })
                     ->successNotificationTitle('Translation updated successfully!'),
 
@@ -293,7 +319,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ->modalDescription('Are you sure you want to delete this translation? This action cannot be undone.')
                     ->action(function (array $record): void {
                         $this->deleteTranslation($record['locale'], $record['key']);
-                        $this->refreshTable();
+                    })
+                    ->after(function () {
+                        $this->refreshData();
                     })
                     ->successNotificationTitle('Translation deleted successfully!'),
 
@@ -309,7 +337,9 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ->modalDescription('Are you sure you want to delete the selected translations? This action cannot be undone.')
                     ->action(function (Collection $records) {
                         $this->bulkDeleteTranslations($records->toArray());
-                        $this->refreshTable();
+                    })
+                    ->after(function () {
+                        $this->refreshData();
                     })
                     ->successNotificationTitle('Translations deleted successfully!'),
             ])
@@ -451,7 +481,7 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ])
                 ->action(function (array $data) {
                     $this->locale = $data['locale'];
-                    $this->refreshTable();
+                    $this->refreshData();
 
                     $localeDisplay = $this->locale === 'all' ? 'all locales' : $this->locale;
                     Notification::make()
@@ -465,7 +495,7 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                 ->label('Refresh')
                 ->icon('heroicon-o-arrow-path')
                 ->action(function () {
-                    $this->refreshTable();
+                    $this->refreshData();
 
                     Notification::make()
                         ->title('Translations refreshed')
