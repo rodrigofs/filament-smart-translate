@@ -1,22 +1,17 @@
 <?php
 
-namespace Rodrigofs\FilamentSmartTranslate\Resource;
+namespace Rodrigofs\FilamentSmartTranslate\Traits\Page;
 
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 use UnitEnum;
 
 /**
- * @mixin \Filament\Resources\Resource
+ * @mixin \Filament\Pages\Page
  *
- * @see \Filament\Resources\Resource
+ * @see \Filament\Resources\Pages\Page
  */
-trait ResourceTranslateble
+trait PageTranslateble
 {
-    public static function getModelLabel(): string
-    {
-        return __(TranslationHelper::translateWithFallback(parent::getModelLabel(), 'resources'));
-    }
-
     public static function getNavigationGroup(): UnitEnum | string | null
     {
         if (is_null(self::$navigationGroup)) {
@@ -28,5 +23,15 @@ trait ResourceTranslateble
         }
 
         return __(TranslationHelper::translateWithFallback(self::$navigationGroup, 'navigations'));
+    }
+
+    public function getModelLabel(): ?string
+    {
+        $parentLabel = parent::getModelLabel() ?? null;
+        if ($parentLabel === null) {
+            return null;
+        }
+
+        return __(TranslationHelper::translateWithFallback($parentLabel, 'resources'));
     }
 }

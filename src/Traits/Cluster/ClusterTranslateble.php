@@ -1,6 +1,6 @@
 <?php
 
-namespace Rodrigofs\FilamentSmartTranslate\Cluster;
+namespace Rodrigofs\FilamentSmartTranslate\Traits\Cluster;
 
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 
