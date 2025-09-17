@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Rodrigofs\FilamentSmartTranslate\Pages;
 
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -178,28 +176,42 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
                     ->successNotificationTitle('Tradução adicionada com sucesso!'),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->label('Editar')
+                Action::make('edit')
+                    ->label('Edit')
                     ->icon('heroicon-o-pencil')
                     ->form([
                         TextInput::make('key')
-                            ->label('Chave')
+                            ->label('Key')
                             ->required()
                             ->disabled()
                             ->dehydrated(false),
 
                         Textarea::make('value')
-                            ->label('Tradução')
+                            ->label('Translation')
                             ->required()
                             ->maxLength(1000)
                             ->rows(3),
                     ])
-                    ->fillForm(fn(array $record): array => [
+                    ->fillForm(fn (array $record): array => [
                         'key' => $record['key'],
                         'value' => $record['value'],
                     ])
-                    ->action(fn(array $data, array $record) => $this->updateTranslation($record['key'], $data['value']))
-                    ->successNotificationTitle('Tradução atualizada com sucesso!'),
+                    ->action(function (array $data, array $record): void {
+                        $this->updateTranslation($record['key'], $data['value']);
+                    })
+                    ->successNotificationTitle('Translation updated successfully!'),
+
+                Action::make('delete')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete Translation')
+                    ->modalDescription('Are you sure you want to delete this translation? This action cannot be undone.')
+                    ->action(function (array $record): void {
+                        $this->deleteTranslation($record['key']);
+                    })
+                    ->successNotificationTitle('Translation deleted successfully!'),
 
 
             ])
@@ -308,22 +320,22 @@ class ManageTranslationsPage extends Page implements Tables\Contracts\HasTable
             $failed = count($result);
 
             Notification::make()
-                ->title('Traduções excluídas')
-                ->body("Excluídas {$successful} de " . count($keys) . " traduções selecionadas.")
+                ->title('Translations deleted')
+                ->body("Deleted {$successful} of " . count($keys) . " selected translations.")
                 ->success()
                 ->send();
 
             if ($failed > 0) {
                 Notification::make()
-                    ->title('Algumas traduções não foram excluídas')
-                    ->body("Falha ao excluir {$failed} traduções.")
+                    ->title('Some translations were not deleted')
+                    ->body("Failed to delete {$failed} translations.")
                     ->warning()
                     ->send();
             }
 
         } catch (\Exception $e) {
             Notification::make()
-                ->title('Erro ao excluir traduções')
+                ->title('Error deleting translations')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();

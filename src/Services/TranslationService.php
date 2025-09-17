@@ -11,6 +11,8 @@ class TranslationService
 {
     protected string $basePath;
     protected array $availableLocales;
+    protected array $cache = [];
+    protected array $pendingWrites = [];
 
     public function __construct(
         string $basePath = null,
@@ -24,20 +26,27 @@ class TranslationService
     {
         $this->validateLocale($locale);
 
+        // Check cache first
+        if (isset($this->cache[$locale])) {
+            return $this->cache[$locale];
+        }
+
         $file = $this->getFilePath($locale);
 
         if (!File::exists($file)) {
-            return collect([]);
+            $this->cache[$locale] = collect([]);
+            return $this->cache[$locale];
         }
 
         $content = File::get($file);
-        $data = json_decode($content, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RuntimeException("Erro ao decodificar JSON para locale {$locale}: " . json_last_error_msg());
+        try {
+            $data = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\JsonException $e) {
+            throw new RuntimeException("Error decoding JSON for locale {$locale}: " . $e->getMessage());
         }
 
-        return collect($data ?? []);
+        $this->cache[$locale] = collect($data ?? []);
+        return $this->cache[$locale];
     }
 
     public function saveTranslations(string $locale, Collection $translations): void
@@ -45,22 +54,36 @@ class TranslationService
         $this->validateLocale($locale);
         $this->ensureDirectoryExists();
 
+        // Update cache
+        $this->cache[$locale] = $translations;
+
         $file = $this->getFilePath($locale);
 
-        // Ordenar por chave para manter consistência
+        // Sort by key for consistency
         $sortedTranslations = $translations->sortKeys();
 
         $json = json_encode(
             $sortedTranslations->toArray(),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR
         );
 
-        if ($json === false) {
-            throw new RuntimeException("Erro ao codificar JSON para locale {$locale}");
+        // Use file locking for concurrent access
+        $lockFile = $file . '.lock';
+        $lockHandle = fopen($lockFile, 'w');
+
+        if (!flock($lockHandle, LOCK_EX)) {
+            fclose($lockHandle);
+            throw new RuntimeException("Could not acquire file lock for locale {$locale}");
         }
 
-        if (!File::put($file, $json)) {
-            throw new RuntimeException("Erro ao salvar arquivo de tradução para locale {$locale}");
+        try {
+            if (!File::put($file, $json)) {
+                throw new RuntimeException("Error saving translation file for locale {$locale}");
+            }
+        } finally {
+            flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
+            @unlink($lockFile);
         }
     }
 
@@ -72,7 +95,7 @@ class TranslationService
         $translations = $this->loadTranslations($locale);
 
         if ($translations->has($key)) {
-            throw new InvalidArgumentException("A chave '{$key}' já existe");
+            throw new InvalidArgumentException("The key '{$key}' already exists");
         }
 
         $translations->put($key, $value);
@@ -89,7 +112,7 @@ class TranslationService
         $translations = $this->loadTranslations($locale);
 
         if (!$translations->has($key)) {
-            throw new InvalidArgumentException("A chave '{$key}' não existe");
+            throw new InvalidArgumentException("The key '{$key}' does not exist");
         }
 
         $translations->put($key, $value);
@@ -106,7 +129,7 @@ class TranslationService
         $translations = $this->loadTranslations($locale);
 
         if (!$translations->has($key)) {
-            throw new InvalidArgumentException("A chave '{$key}' não existe");
+            throw new InvalidArgumentException("The key '{$key}' does not exist");
         }
 
         $translations->forget($key);
@@ -116,23 +139,59 @@ class TranslationService
     }
 
     /**
-     * Remove múltiplas traduções
+     * Remove multiple translations efficiently
      */
-    public function bulkDeleteTranslations(string $locale, array $keys): Collection
+    public function bulkDeleteTranslations(string $locale, array $keys): array
+    {
+        $translations = $this->loadTranslations($locale);
+        $deleted = [];
+        $notFound = [];
+
+        foreach ($keys as $key) {
+            if ($translations->has($key)) {
+                $translations->forget($key);
+                $deleted[] = $key;
+            } else {
+                $notFound[] = $key;
+            }
+        }
+
+        if (!empty($deleted)) {
+            $this->saveTranslations($locale, $translations);
+        }
+
+        return $notFound; // Return keys that were not found for error handling
+    }
+
+    /**
+     * Clear cache for a specific locale or all locales
+     */
+    public function clearCache(?string $locale = null): void
+    {
+        if ($locale === null) {
+            $this->cache = [];
+        } else {
+            unset($this->cache[$locale]);
+        }
+    }
+
+    /**
+     * Batch update multiple translations for better performance
+     */
+    public function batchUpdateTranslations(string $locale, array $updates): Collection
     {
         $translations = $this->loadTranslations($locale);
 
-        foreach ($keys as $key) {
-            $translations->forget($key);
+        foreach ($updates as $key => $value) {
+            $translations->put($key, $value);
         }
 
         $this->saveTranslations($locale, $translations);
-
         return $translations;
     }
 
     /**
-     * Importa traduções de um array
+     * Import translations from array
      */
     public function importTranslations(
         string $locale,
