@@ -73,6 +73,7 @@ php artisan filament-smart-translate:status
 
 ```php
 // Resources
+
 use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
@@ -136,6 +137,8 @@ The package includes a **powerful translation management interface** for develop
 
 **The Problem**: The manager modifies JSON translation files directly. When you pull updates from Git to your production server, these local changes will conflict with incoming changes, potentially causing deployment failures or requiring manual conflict resolution during `git pull` operations.
 
+use Filament\Pages\Page;use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
+
 ### 🔧 Enable Translation Manager
 
 #### 1. Register the Plugin
@@ -144,7 +147,6 @@ Add the TranslationPlugin to your Filament panel:
 
 ```php
 // app/Providers/Filament/AdminPanelProvider.php
-
 use Rodrigofs\FilamentSmartTranslate\TranslationPlugin;
 
 public function panel(Panel $panel): Panel
@@ -529,6 +531,7 @@ return [
 Add the required traits:
 
 ```php
+
 // Resource
 use ResourceTranslateble;
 
@@ -537,6 +540,7 @@ use PageTranslateble;
 
 // Cluster
 use ClusterTranslateble;
+
 ```
 
 ### Translation Manager Not Working?
