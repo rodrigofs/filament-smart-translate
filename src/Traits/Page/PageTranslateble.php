@@ -27,8 +27,7 @@ trait PageTranslateble
 
     public function getModelLabel(): ?string
     {
-        $parentLabel = parent::getModelLabel() ?? null;
-
+        $parentLabel = method_exists(parent::class, 'getModelLabel') ? parent::getModelLabel() : null;
         if ($parentLabel === null) {
             return null;
         }
