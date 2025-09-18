@@ -192,6 +192,7 @@ Add to your configuration:
 ### 📸 Translation Manager Features
 
 ![Translation Manager Interface](.github/resources/print_1.png)
+
 *Translation Manager interface showing the translation editing capabilities*
 
 **🌐 Multi-language Interface**
