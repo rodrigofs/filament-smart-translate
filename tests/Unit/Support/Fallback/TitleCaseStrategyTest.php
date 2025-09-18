@@ -49,13 +49,14 @@ it('handles dotted keys correctly', function () {
 it('handles already formatted strings', function () {
     $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('User Name'))->toBe('user name');
-    expect($strategy->apply('Profile Data'))->toBe('profile data');
+    // title_case is an alias for lower_case, so it converts to lower-case with hyphens
+    expect($strategy->apply('User Name'))->toBe('user-name');
+    expect($strategy->apply('Profile Data'))->toBe('profile-data');
 });
 
 it('handles special cases', function () {
     $strategy = FallbackStrategyManager::resolve('title_case');
 
-    expect($strategy->apply('user name'))->toBe('user name'); // Spaces already present
-    expect($strategy->apply(' profile '))->toBe(' profile '); // Leading/trailing spaces
+    expect($strategy->apply('user name'))->toBe('user-name'); // Spaces become dashes
+    expect($strategy->apply(' profile '))->toBe('-profile-'); // Leading/trailing spaces become dashes
 });

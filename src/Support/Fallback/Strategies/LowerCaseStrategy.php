@@ -16,7 +16,7 @@ final readonly class LowerCaseStrategy implements FallbackStrategyInterface
 
         return (string) str($key)
             ->afterLast('.')
-            ->replace(['-', '_'], '-')
+            ->replace(['-', '_', ' '], '-')
             ->lower();
     }
 }

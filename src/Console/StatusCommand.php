@@ -74,11 +74,15 @@ class StatusCommand extends Command
         $this->newLine();
 
         $components = [
-            'resource_labels' => 'Resource Labels',
-            'navigation' => 'Navigation',
+            'resources' => 'Resource Labels',
+            'navigations' => 'Navigation',
             'actions' => 'Actions',
             'clusters' => 'Clusters',
             'pages' => 'Pages',
+            'fields' => 'Fields',
+            'schemas' => 'Schemas',
+            'entries' => 'Entries',
+            'columns' => 'Columns',
         ];
 
         foreach ($components as $key => $label) {
@@ -88,9 +92,9 @@ class StatusCommand extends Command
             $status = $enabled ? '<fg=green>✓</fg=green>' : '<fg=red>✗</fg=red>';
             $fallbackColor = match ($fallback) {
                 'humanize' => 'yellow',
-                'title_case' => 'blue',
+                'lower_case' => 'blue',
                 'original' => 'gray',
-                default => 'magenta'
+                default => 'gray'
             };
 
             $this->line("    {$status} <fg=white>{$label}</fg=white> <fg={$fallbackColor}>({$fallback})</fg={$fallbackColor}>");
@@ -103,7 +107,7 @@ class StatusCommand extends Command
         $this->line('  📊 <fg=white;options=bold>Coverage Summary:</fg=white;options=bold>');
         $this->newLine();
 
-        $components = ['resource_labels', 'navigation', 'actions', 'clusters', 'pages'];
+        $components = ['resources', 'navigations', 'actions', 'clusters', 'pages', 'fields', 'schemas', 'entries', 'columns'];
         $enabled = array_filter($components, fn ($key) => Config::get("filament-smart-translate.components.{$key}.enabled", true));
         $coverage = count($enabled);
         $total = count($components);
@@ -219,14 +223,19 @@ class StatusCommand extends Command
                     ];
 
                     $found = false;
+                    $count = 0;
                     foreach ($patterns as $pattern) {
                         if (preg_match($pattern, $content)) {
+                            if ($found && $count >= 2) {
+                                break;
+                            }
+
+                            $count++;
                             $found = true;
-                            break;
                         }
                     }
 
-                    if ($found && ! in_array($relativePath, $traits[$trait])) {
+                    if ($found && $count >= 2 && ! in_array($relativePath, $traits[$trait])) {
                         $traits[$trait][] = $relativePath;
                     }
                 }

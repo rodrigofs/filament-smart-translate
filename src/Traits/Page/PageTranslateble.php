@@ -27,11 +27,25 @@ trait PageTranslateble
 
     public function getModelLabel(): ?string
     {
-        $parentLabel = parent::getModelLabel() ?? null;
+        $parentLabel = method_exists(parent::class, 'getModelLabel') ? parent::getModelLabel() : null;
         if ($parentLabel === null) {
             return null;
         }
 
-        return __(TranslationHelper::translateWithFallback($parentLabel, 'resources'));
+        return __(TranslationHelper::translateWithFallback($parentLabel, 'pages'));
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        $navigationLabel = parent::getNavigationLabel();
+
+        return __(TranslationHelper::translateWithFallback($navigationLabel, 'pages'));
+    }
+
+    public function getTitle(): string
+    {
+        $title = parent::getTitle();
+
+        return __(TranslationHelper::translateWithFallback($title, 'pages'));
     }
 }

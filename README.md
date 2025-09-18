@@ -3,7 +3,6 @@
 [![Tests](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml)
 [![PHPStan](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml)
 [![Code Style](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml)
-[![Coverage](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml)
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/rodrigofs/filament-smart-translate?style=for-the-badge&logo=packagist&logoColor=white)
@@ -11,21 +10,21 @@
 ![Laravel](https://img.shields.io/badge/Laravel-v12+-FF2D20?style=for-the-badge&logo=laravel)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php)
 
-**A comprehensive Laravel package designed exclusively for Filament v4 applications** that provides automatic translation support for all Filament components. **Form fields, table columns, actions, and layout components** work automatically with zero configuration. **Resources, Pages, and Clusters** require simple trait implementation for full translation support.
+**Complete translation solution for Filament v4** that provides automatic translation for all components with zero configuration, plus a powerful translation management interface for development.
 
 ## ✨ Features
 
-- **🎯 Filament v4 Native**: Built specifically for Filament v4 architecture and components
-- **⚡ Zero Configuration**: Form fields, columns, actions work instantly with zero configuration
-- **🔧 Trait-Based Architecture**: Resources, Pages, Clusters require simple trait addition
-- **🎛️ Smart Fallback System**: Advanced fallback strategies with extensible architecture
-- **🌐 Multi-locale Support**: Full support for Laravel's multi-language features
-- **📊 Status Command**: Visual overview of implementation status and missing translations
-- **🔄 Service Provider Integration**: Leverages Filament v4's component configuration system
+- **🎯 Zero Configuration**: Form fields, columns, actions work instantly
+- **🔧 Simple Traits**: Resources, Pages, Clusters need one line of code
+- **🎛️ Smart Fallbacks**: Intelligent fallback strategies when translations are missing
+- **📱 Translation Manager**: Built-in interface to manage translations (development mode)
+- **🌐 Multi-locale Support**: Full Laravel translation system support
+- **📊 Status Dashboard**: Visual overview of implementation status
+- **⚡ High Performance**: Optimized with caching and lazy evaluation
 
 ## 📦 Installation
 
-### 1. Install via Composer
+### 1. Install Package
 
 ```bash
 composer require rodrigofs/filament-smart-translate
@@ -37,371 +36,261 @@ composer require rodrigofs/filament-smart-translate
 php artisan vendor:publish --tag=filament-smart-translate-config
 ```
 
-### 3. Check Package Status (Optional)
+### 3. Check Status
 
 ```bash
 php artisan filament-smart-translate:status
 ```
 
-This command shows a visual overview of your package configuration, trait usage, and component coverage.
-
-The package is now ready to use! Laravel's auto-discovery will automatically register the service provider.
-
 ## 🚀 Quick Start
 
-### 1. Create Translation Files
+### 1. Set Your Locale
 
-The package uses Laravel's standard translation system. Create JSON files for your languages:
+```php
+// config/app.php
+'locale' => 'pt_BR', // or your preferred locale
+```
 
-**JSON format (`lang/pt_BR.json`, `lang/es.json`, etc.)**
+### 2. Create Translation Files
+
 ```json
+// lang/pt_BR.json
 {
     "name": "Nome",
     "email": "E-mail",
     "user": "Usuário",
-    "users": "Usuários",
     "admin": "Administração",
-    "settings": "Configurações",
     "create": "Criar",
     "edit": "Editar",
     "delete": "Excluir"
 }
 ```
 
-**Nested format (optional - using PHP files)**
-```php
-// lang/pt_BR/navigation.php (alternative approach)
-<?php
+### 3. Add Traits to Resources, Pages & Clusters
 
-return [
-    'dashboard' => 'Painel',
-    'user_management' => 'Gerenciamento de Usuários',
-    'settings' => 'Configurações',
-];
-```
-
-### 2. Set Your Locale
-
-Configure your application locale in `config/app.php`:
-
-```php
-'locale' => 'pt_BR', // or any supported locale
-```
-
-### 3. Add Traits to Resources, Pages & Clusters (Required)
-
-For Resources, Pages, and Clusters to have translation, you must add the appropriate traits:
+**Only for Resources, Pages, and Clusters** - other components work automatically:
 
 ```php
 // Resources
-use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
+
+use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
-    use ResourceTranslateble; // Required for model labels
+    use ResourceTranslateble; // ⭐ Add this line
 }
 
-// Pages  
+// Pages
+use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
+
 class Settings extends Page
 {
-    use PageTranslateble; // Required for navigation groups
+    use PageTranslateble; // ⭐ Add this line
 }
 
 // Clusters
+use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;
+
 class UserManagement extends Cluster
 {
-    use ClusterTranslateble; // Required for navigation/breadcrumbs
+    use ClusterTranslateble; // ⭐ Add this line
 }
 ```
 
-Your Filament interface will now display translated labels automatically for components and with traits for Resources, Pages & Clusters!
+**That's it!** Your Filament interface will now display translated labels automatically.
 
 ## 🎯 How It Works
 
-The package provides **two levels of translation**:
+### ✅ Automatic (No Code Changes)
+These components work instantly with **zero configuration**:
 
-### ✅ Automatic Translation (No Code Changes Required)
+- **Form Fields**: TextInput, Select, Checkbox, etc.
+- **Table Columns**: TextColumn, BooleanColumn, etc.
+- **Actions**: CreateAction, EditAction, DeleteAction, etc.
+- **Layout**: Section, Tabs, Group, etc.
 
-These components are automatically configured to use `translateLabel()`:
+### 🔧 Trait Required
+These components need **one trait per class**:
 
-- **Form Fields**: `TextInput`, `Select`, `Checkbox`, `Textarea`, `DatePicker`, etc.
-- **Table Columns**: `TextColumn`, `BooleanColumn`, `SelectColumn`, etc.
-- **Infolist Entries**: `TextEntry`, `IconEntry`, `ImageEntry`, etc.
-- **Actions**: `CreateAction`, `EditAction`, `DeleteAction`, `BulkAction`, etc.
-- **Layout Components**: `Section`, `Tabs`, `Tab`, `Group`, `Fieldset`
+- **Resources**: Model labels & navigation → `ResourceTranslateble`
+- **Pages**: Navigation groups → `PageTranslateble`
+- **Clusters**: Breadcrumbs & navigation → `ClusterTranslateble`
 
-### 🔧 Trait-Based Translation (Manual Implementation Required)
+| Component | Automatic | Trait Required |
+|-----------|-----------|----------------|
+| Form Fields | ✅ Yes | ❌ No |
+| Table Columns | ✅ Yes | ❌ No |
+| Actions | ✅ Yes | ❌ No |
+| Layout | ✅ Yes | ❌ No |
+| **Resources** | ❌ No | ✅ Yes |
+| **Pages** | ❌ No | ✅ Yes |
+| **Clusters** | ❌ No | ✅ Yes |
 
-These components **require traits** to enable translation:
+## 📱 Translation Manager (Development Feature)
 
-- **Resources**: Model labels and navigation groups → Use `ResourceTranslateble` trait
-- **Pages**: Navigation groups → Use `PageTranslateble` trait  
-- **Clusters**: Navigation and breadcrumbs → Use `ClusterTranslateble` trait
+The package includes a **powerful translation management interface** for development environments.
 
-> **Important**: Without traits, Resources, Pages, and Clusters will **not** have automatic translation. You must add the appropriate trait to each class to enable translation for these components.
+### ⚠️ Important: Development Only
 
-## 🔧 Translation Traits (Required for Resources, Pages & Clusters)
+**The Translation Manager should only be used in development environments** to avoid Git conflicts during production deployments.
 
-To enable translation for Resources, Pages, and Clusters, you **must** add the appropriate traits:
-
-### Resource Trait
-
-**Required** for Resources to enable model label and navigation group translation:
-
-```php
-<?php
-
-namespace App\Filament\Resources;
-
-use Filament\Resources\Resource;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
-
-class UserResource extends Resource
-{
-    use ResourceTranslateble;
-    
-    protected static ?string $model = User::class;
-    protected static ?string $navigationGroup = 'user_management';
-    
-    // The trait will automatically translate:
-    // - getModelLabel() using 'resource_labels' prefix
-    // - getNavigationGroup() using 'navigation_groups' prefix
-}
-```
-
-**Translation files needed:**
-```json
-// lang/pt_BR.json
-{
-    "resources.user": "Usuário",
-    "navigations.user_management": "Gerenciamento de Usuários"
-}
-```
-
-### Page Trait
-
-**Required** for Pages to enable navigation group translation:
-
-```php
-<?php
-
-namespace App\Filament\Pages;
+**The Problem**: The manager modifies JSON translation files directly. When you pull updates from Git to your production server, these local changes will conflict with incoming changes, potentially causing deployment failures or requiring manual conflict resolution during `git pull` operations.
 
 use Filament\Pages\Page;use Rodrigofs\FilamentSmartTranslate\Traits\Page\PageTranslateble;
 
-class Settings extends Page
+### 🔧 Enable Translation Manager
+
+#### 1. Register the Plugin
+
+Add the TranslationPlugin to your Filament panel:
+
+```php
+// app/Providers/Filament/AdminPanelProvider.php
+use Rodrigofs\FilamentSmartTranslate\TranslationPlugin;
+
+public function panel(Panel $panel): Panel
 {
-    use PageTranslateble;
-    
-    protected static ?string $navigationGroup = 'administration';
-    
-    // The trait will automatically translate navigation groups
+    return $panel
+        // ... other configurations
+        ->plugins([
+            TranslationPlugin::make(), // ⭐ Add this line
+            // ... other plugins
+        ]);
 }
 ```
 
-### Cluster Trait
+#### 2. Configure the Translation Manager
 
-**Required** for Clusters to enable navigation and breadcrumb translation:
-
-```php
-<?php
-
-namespace App\Filament\Clusters;
-
-use Filament\Clusters\Cluster;use Rodrigofs\FilamentSmartTranslate\Traits\Cluster\ClusterTranslateble;
-
-class UserManagement extends Cluster
-{
-    use ClusterTranslateble;
-    
-    // The trait will automatically translate:
-    // - getClusterBreadcrumb() using 'cluster' prefix
-}
-```
-
-**Translation files needed:**
-```json
-// lang/pt_BR.json
-{
-    "clusters.user_management": "Gerenciamento de Usuários"
-}
-```
-
-### Summary: When Traits Are Required
-
-| Component Type | Automatic Translation | Trait Required | What Gets Translated |
-|---|---|---|---|
-| **Form Fields** | ✅ Yes | ❌ No | Field labels |
-| **Table Columns** | ✅ Yes | ❌ No | Column headers |
-| **Infolist Entries** | ✅ Yes | ❌ No | Entry labels |
-| **Actions** | ✅ Yes | ❌ No | Action labels |
-| **Layout Components** | ✅ Yes | ❌ No | Section/Tab labels |
-| **Resources** | ❌ No | ✅ Yes | Model labels, navigation groups |
-| **Pages** | ❌ No | ✅ Yes | Navigation groups |
-| **Clusters** | ❌ No | ✅ Yes | Navigation, breadcrumbs |
-
-> **Key Point**: Form fields, table columns, actions, and layout components work automatically. Resources, Pages, and Clusters require manual trait implementation.
-
-## 🛠️ Configuration
-
-The package works without configuration, but you can customize its behavior:
+Add to your configuration:
 
 ```php
-<?php
-
-return [
-    // Enable/disable the entire translation system
-    'enabled' => env('FILAMENT_SMART_TRANSLATE_ENABLED', true),
-
-    // Component-specific settings
-    'components' => [
-        'resources' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'navigations' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'actions' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'clusters' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'pages' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'fields' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'schemas' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'entries' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ],
-        'columns' => [
-            'enabled' => true,
-            'fallback_strategy' => 'lower_case'
-        ]
+// config/filament-smart-translate.php
+'translation_page' => [
+    'enabled' => true,
+    'dev_only' => true, // ⭐ Important: Only in development
+    'navigation' => [
+        'enabled' => true,
+        'group' => 'Development',
+        'sort' => 99,
+        'icon' => 'heroicon-o-language',
     ],
-
-    // Custom fallback strategies
-    'fallback_strategies' => [
-        // 'custom_strategy' => \App\Strategies\CustomFallbackStrategy::class,
+    'page' => [
+        'title' => 'Translation Manager',
+        'navigation_label' => 'Translations',
     ],
-
-    // Debug settings
-    'debug' => [
-        'log_missing_translations' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
-        'log_fallback_usage' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
+    'features' => [
+        'export' => true,
+        'backup' => true,
+        'language_selector' => true,
+        'bulk_actions' => true,
     ],
-];
+    'authorize' => env('APP_DEBUG', false), // Only when debug is enabled
+],
 ```
 
-## 🎛️ Fallback Strategies System
+### 📸 Translation Manager Features
 
-When a translation is missing, the package applies intelligent fallback strategies to provide a better user experience. The system supports three built-in strategies and allows custom implementations.
+![Translation Manager Interface](.github/resources/print_1.png)
 
-### Built-in Fallback Strategies
+*Translation Manager interface showing the translation editing capabilities*
 
-#### 1. `original` Strategy (Default)
-Keeps the original key unchanged:
+**🌐 Multi-language Interface**
+- Switch between locales instantly
+- Add, edit, delete translations
+- Bulk operations for efficiency
 
+**📊 Statistics Dashboard**
+- Total translations count
+- Empty translations detection
+- Progress tracking per locale
+
+**💾 Backup & Export**
+- Automatic backups before changes
+- Export translations to JSON
+- Safe file handling
+
+**🔍 Search Functionality**
+- Search translations by key or value
+
+### 🛡️ Production Alternative
+
+If you **must** use the Translation Manager in production:
+
+1. **Remove translation files from Git tracking**:
+```bash
+# Add to .gitignore
+lang/*.json
+!lang/en.json  # Keep English as template
+```
+
+2. **Configure for production**:
 ```php
-'fallback_strategy' => 'original'
+'translation_page' => [
+    'enabled' => env('TRANSLATION_MANAGER_ENABLED', false),
+    'dev_only' => false,
+    'authorize' => function () {
+        return auth()->user()?->hasRole('admin');
+    },
+],
 ```
 
-**Examples:**
-- `user_name` → `user_name`
-- `email_address` → `email_address`
-- `navigation_group` → `navigation_group`
-
-**Best for:** When you prefer to see the exact key names for debugging or when keys are already in a readable format.
-
-#### 2. `humanize` Strategy  
-Converts keys to human-readable format:
-
-```php
-'fallback_strategy' => 'humanize'
+3. **Use environment variable**:
+```env
+# Only enable when needed
+TRANSLATION_MANAGER_ENABLED=true
 ```
 
-**Examples:**
-- `user_name` → `User_Name`
-- `emailAddress` → `Email Address`
-- `first_name_field` → `First_Name_Field`
-- `userProfileData` → `User Profile Data`
+⚠️ **Recommendation**: Keep the Translation Manager in development only to avoid Git conflicts during production deployments (`git pull` operations).
 
-**Best for:** Development environments or when you want automatic readable labels without creating translations.
+## 🎛️ Fallback Strategies
 
-#### 3. `lower_case` Strategy
-Converts keys to lowercase with hyphens (custom implementation):
+When translations are missing, the package applies intelligent fallback strategies:
 
-```php
-'fallback_strategy' => 'lower_case'
+### Built-in Strategies
+
+#### 1. `original` (Default)
+Keeps the original key format:
+```
+user_name → User name
+email_address → Email address
 ```
 
-**Examples:**
-- `user_name` → `user-name`
-- `email_address` → `email-address`
-- `first_name_field` → `first-name-field`
-- `module.user_settings` → `user-settings` (after last dot)
-
-**Best for:** Modern UI with clean, lowercase styling and consistent hyphen separators.
-
-#### 4. `title_case` Strategy (Deprecated Alias)
-This is an alias for the `lower_case` strategy, maintained for backward compatibility:
-
-```php
-'fallback_strategy' => 'title_case' // Resolves to lower_case strategy
+#### 2. `humanize`
+Converts to human-readable format:
+```
+user_name → User Name
+emailAddress → Email Address
 ```
 
-**Note:** Use `lower_case` directly for new implementations. This alias may be removed in future versions.
+#### 3. `lower_case`
+Converts to lowercase with hyphens:
+```
+user_name → user-name
+email_address → email-address
+```
 
-### Component-Specific Fallback Configuration
-
-You can configure different fallback strategies for different component types:
+### Component-Specific Configuration
 
 ```php
 'components' => [
     'fields' => [
         'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
-    ],
-    'columns' => [
-        'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
-    ],
-    'entries' => [
-        'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
+        'fallback_strategy' => 'original'
     ],
     'resources' => [
         'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
-    ],
-    'navigations' => [
-        'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
+        'fallback_strategy' => 'humanize'
     ],
     'actions' => [
         'enabled' => true,
-        'fallback_strategy' => 'original' // Default configuration
+        'fallback_strategy' => 'lower_case'
     ]
 ]
 ```
 
-### Custom Fallback Strategies
+### Custom Strategies
 
-You can create custom fallback strategies by implementing the `FallbackStrategyInterface`:
-
-#### 1. Create a Custom Strategy Class
+Create your own fallback strategy:
 
 ```php
 <?php
@@ -419,198 +308,110 @@ class UppercaseStrategy implements FallbackStrategyInterface
 }
 ```
 
-#### 2. Register the Strategy
-
+Register in configuration:
 ```php
-// config/filament-smart-translate.php
 'fallback_strategies' => [
     'uppercase' => \App\Strategies\UppercaseStrategy::class,
 ],
-
-'components' => [
-    'actions' => [
-        'fallback_strategy' => 'uppercase' // Use your custom strategy
-    ]
-]
-```
-
-### Fallback Strategy Architecture
-
-The fallback system uses a sophisticated architecture with these components:
-
-- **`FallbackStrategyInterface`**: Contract that all strategies must implement
-- **`FallbackStrategyManager`**: Resolves and reuses strategy instances during request lifecycle
-- **Built-in Strategies**: `HumanizeStrategy`, `OriginalStrategy`, `LowerCaseStrategy`
-- **Custom Strategy Support**: Full support for user-defined strategies
-
-#### Strategy Resolution Flow
-
-1. **Configuration Check**: Component-specific fallback strategy is loaded
-2. **Strategy Resolution**: Manager resolves strategy (class or closure)
-3. **Instance Reuse**: Strategy instances are reused within the same request for performance
-4. **Fallback Chain**: If strategy fails, falls back to `humanize` strategy
-5. **Error Handling**: Graceful degradation to prevent application crashes
-
-#### Advanced Strategy Example
-
-```php
-<?php
-
-namespace App\Strategies;
-
-use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyInterface;
-
-class LocalizedPrefixStrategy implements FallbackStrategyInterface
-{
-    public function apply(string $key): string
-    {
-        $locale = app()->getLocale();
-        $formatted = ucwords(str_replace(['_', '-'], ' ', $key));
-        
-        return match($locale) {
-            'pt_BR' => "🇧🇷 {$formatted}",
-            'es' => "🇪🇸 {$formatted}",
-            'fr' => "🇫🇷 {$formatted}",
-            default => $formatted
-        };
-    }
-}
-```
-
-### Environment Variables
-
-Control fallback behavior via environment variables:
-
-```env
-# Enable/disable translation system
-FILAMENT_SMART_TRANSLATE_ENABLED=true
-
-# Enable debug logging for fallback usage
-FILAMENT_SMART_TRANSLATE_DEBUG=false
-```
-
-### Debug Fallback Usage
-
-Enable logging to see which fallback strategies are being used:
-
-```php
-'debug' => [
-    'log_missing_translations' => true,
-    'log_fallback_usage' => true,
-]
-```
-
-This will log entries like:
-```
-[2024-12-19 10:30:15] local.INFO: Filament Smart Translation: Missing translation
-{
-    "key": "user_profile",
-    "component": "resource_labels", 
-    "fallback_strategy": "humanize",
-    "locale": "pt_BR"
-}
 ```
 
 ## 🌍 Translation Structure
 
-The package supports multiple translation key patterns with intelligent fallback:
-
-### Component-Prefixed Keys (Recommended)
+### Recommended: Component-Prefixed Keys
 ```json
-// lang/en.json
 {
-    "resources.user": "User",
-    "navigations.admin": "Administration",
-    "actions.create": "Create",
-    "clusters.user_management": "User Management"
+    "resources.user": "Usuário",
+    "navigations.admin": "Administração",
+    "actions.create": "Criar",
+    "fields.name": "Nome"
 }
 ```
 
-### Direct Keys (Fallback)
+### Alternative: Direct Keys
 ```json
-// lang/en.json  
 {
-    "name": "Name",
-    "email": "Email",
-    "password": "Password",
-    "user": "User"
+    "name": "Nome",
+    "email": "E-mail",
+    "user": "Usuário"
 }
 ```
 
-### Translation Resolution Order
+### Resolution Order
+1. Component-prefixed key (`resources.user`)
+2. Direct key (`user`)
+3. Fallback strategy result
 
-The package tries to find translations in this order:
+## 📊 Status Command
 
-1. **Component-prefixed key**: `resources.user`
-2. **Direct key**: `user`
-3. **Fallback strategy**: Applied based on component configuration
+Get a complete overview of your setup:
 
-This intelligent resolution ensures maximum flexibility while maintaining clean translation files.
-
-## 💡 Examples
-
-### Before (without translation)
-```php
-class UserResource extends Resource 
-{
-    protected static ?string $model = User::class;
-    protected static ?string $navigationGroup = 'Admin';
-    
-    public static function form(Form $form): Form
-    {
-        return $form->schema([
-            TextInput::make('name'),
-            TextInput::make('email'),
-        ]);
-    }
-}
+```bash
+php artisan filament-smart-translate:status
 ```
 
-### After (with Portuguese translations)
-With `pt_BR` locale and proper translations, the same resource automatically shows:
-- "Nome" instead of "name"
-- "E-mail" instead of "email" 
-- "Administração" instead of "Admin"
+**Shows:**
+- ✅ Package status (enabled/disabled)
+- 🎯 Trait usage (Resources, Pages, Clusters)
+- ⚠️ Missing trait candidates
+- 🔧 Component coverage with strategies
+- 📊 Overall statistics and tips
 
-### Complete Example with Traits
+**Example output:**
+```
+  ╔══════════════════════════════════════════════════════════╗
+  ║  Filament Smart Translation - Status Report              ║
+  ╚══════════════════════════════════════════════════════════╝
+
+  📦 Package Status: ✓ ENABLED
+
+  🎯 Trait Usage:
+    ✓ ResourceTranslateble (2 files)
+    ⚠ Files that could use traits: 3 candidates
+
+  🔧 Component Coverage:
+    ✓ Resources (humanize)
+    ✓ Fields (original)
+    ✓ Actions (lower_case)
+
+  📊 Coverage Summary: 9/9 components active (100%)
+```
+
+## 💡 Complete Example
+
+### Resource with Translation Trait
 
 ```php
 <?php
 
 namespace App\Filament\Resources;
 
-use App\Models\User;use Filament\Forms;use Filament\Resources\Resource;use Filament\Tables;use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Rodrigofs\FilamentSmartTranslate\Traits\Resource\ResourceTranslateble;
 
 class UserResource extends Resource
 {
-    use ResourceTranslateble; // 🎯 Add the trait for enhanced translation
-    
+    use ResourceTranslateble; // ⭐ Add this for model labels
+
     protected static ?string $model = User::class;
-    
-    // These will be automatically translated:
     protected static ?string $navigationGroup = 'user_management';
-    
+
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                // Labels automatically translated via service provider
-                Forms\Components\TextInput::make('name')
-                    ->required(),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required(),
-                Forms\Components\Select::make('role')
-                    ->options([
-                        'admin' => 'Administrator',
-                        'user' => 'User',
-                    ]),
-                Forms\Components\Section::make('Profile')
-                    ->schema([
-                        Forms\Components\TextInput::make('first_name'),
-                        Forms\Components\TextInput::make('last_name'),
-                    ]),
-            ]);
+        return $form->schema([
+            // These translate automatically (no code changes needed)
+            Forms\Components\TextInput::make('name'),
+            Forms\Components\TextInput::make('email'),
+            Forms\Components\Select::make('role'),
+
+            Forms\Components\Section::make('profile') // Section titles too!
+                ->schema([
+                    Forms\Components\TextInput::make('first_name'),
+                    Forms\Components\TextInput::make('last_name'),
+                ]),
+        ]);
     }
 
     public static function table(Table $table): Table
@@ -631,220 +432,159 @@ class UserResource extends Resource
 }
 ```
 
-**Required translation files:**
+### Translation File
+
 ```json
 // lang/pt_BR.json
 {
     "name": "Nome",
-    "email": "E-mail", 
+    "email": "E-mail",
     "role": "Função",
-    "admin": "Administrador",
-    "user": "Usuário",
     "first_name": "Primeiro Nome",
     "last_name": "Último Nome",
     "profile": "Perfil",
     "resources.user": "Usuário",
     "navigations.user_management": "Gerenciamento de Usuários",
-    "actions.create": "Criar",
     "actions.edit": "Editar",
     "actions.delete": "Excluir"
 }
 ```
 
-**Result:** Complete Portuguese interface with automatic fallbacks for missing keys!
+**Result**: Complete Portuguese interface with intelligent fallbacks!
 
-## 📊 Package Status Command
+## 🔧 Configuration
 
-Use the status command to get a visual overview of your package configuration:
+Full configuration options:
 
-```bash
-php artisan filament-smart-translate:status
-```
+```php
+<?php
+// config/filament-smart-translate.php
 
-**What it shows:**
-- ✅ **Package Status**: Whether the package is enabled or disabled
-- 🎯 **Trait Usage**: Which traits are being used and where (no duplicates)
-- ⚠️ **Trait Candidates**: Files that could use traits but don't (Resources, Pages, Clusters)
-- 🔧 **Component Coverage**: Status of each component type with fallback strategies
-- 📊 **Coverage Summary**: Overall percentage, trait implementation status, and helpful tips
+return [
+    // Global enable/disable
+    'enabled' => env('FILAMENT_SMART_TRANSLATE_ENABLED', true),
 
-**Example output:**
-```
-  ╔══════════════════════════════════════════════════════════╗
-  ║  Filament Smart Translation - Status Report              ║
-  ╚══════════════════════════════════════════════════════════╝
+    // Translation Manager (Development Feature)
+    'translation_page' => [
+        'enabled' => false, // Enable translation management interface
+        'dev_only' => true, // ⚠️ Important: Only in development
+        'navigation' => [
+            'enabled' => true,
+            'group' => 'Development',
+            'sort' => 99,
+            'icon' => 'heroicon-o-language',
+        ],
+        'page' => [
+            'title' => 'Translation Manager',
+            'navigation_label' => 'Translations',
+        ],
+        'features' => [
+            'export' => true,
+            'backup' => true,
+            'language_selector' => true,
+            'bulk_actions' => true,
+        ],
+        'authorize' => env('APP_DEBUG', false),
+    ],
 
-  📦 Package Status: ✓ ENABLED
+    // Component-specific settings
+    'components' => [
+        'resources' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original'
+        ],
+        'fields' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original'
+        ],
+        'actions' => [
+            'enabled' => true,
+            'fallback_strategy' => 'original'
+        ],
+        // ... other components
+    ],
 
-  🎯 Trait Usage:
-    ✓ ResourceTranslateble (2 files)
-      └─ app/Filament/Resources/UserResource.php
-      └─ app/Filament/Resources/PostResource.php
+    // Custom fallback strategies
+    'fallback_strategies' => [
+        // 'custom' => \App\Strategies\CustomStrategy::class,
+    ],
 
-    ⚠ Files that could use traits:
-    ○ PageTranslateble (1 candidate)
-      └─ app/Filament/Pages/Settings.php
-    ○ ClusterTranslateble (1 candidate)
-      └─ app/Filament/Clusters/AdminCluster.php
-
-  🔧 Component Coverage:
-    ✓ Resources (lower_case)
-    ✓ Navigations (lower_case)
-    ✓ Actions (lower_case)
-    ✓ Clusters (lower_case)
-    ✓ Pages (lower_case)
-
-  📊 Coverage Summary:
-    ▓ Active components: 5/5 (100%)
-    ▓ Implemented traits: 2 files
-    ▓ Candidates without traits: 2 files (could use traits)
-
-  💡 Tip: For better control, consider adding traits to candidates:
-     • ResourceTranslateble - For resources with custom model labels
-     • PageTranslateble - For pages with navigation groups
-     • ClusterTranslateble - For clusters with custom breadcrumbs
+    // Debug settings
+    'debug' => [
+        'log_missing_translations' => env('FILAMENT_SMART_TRANSLATE_DEBUG', false),
+    ],
+];
 ```
 
 ## 🔧 Troubleshooting
 
 ### Translations Not Showing?
 
-1. **Check your locale**: Ensure `config/app.php` has the correct locale
-2. **Verify translation files**: Make sure your translation keys exist
-3. **Clear config cache**: Run `php artisan config:clear`
-4. **Check configuration**: Ensure the package is enabled in configuration
-5. **Add missing traits**: Resources, Pages, and Clusters require traits to work
-6. **Use status command**: Run `php artisan filament-smart-translate:status` to see what's configured
+1. **Check locale**: Verify `config/app.php` locale setting
+2. **Clear cache**: Run `php artisan config:clear`
+3. **Add traits**: Resources/Pages/Clusters need traits
+4. **Check files**: Ensure translation files exist
+5. **Run status**: Use `php artisan filament-smart-translate:status`
 
-### Resources, Pages, or Clusters Not Translating?
+### Resources/Pages/Clusters Not Translating?
 
-This is expected behavior. These components **require traits** to enable translation:
+Add the required traits:
 
 ```php
-// Add to your Resource
 
-// Add to your Page  
+// Resource
+use ResourceTranslateble;
 
-// Add to your Cluster
+// Page
+use PageTranslateble;
+
+// Cluster
+use ClusterTranslateble;
 
 ```
 
-Run `php artisan filament-smart-translate:status` to see which files need traits.
+### Translation Manager Not Working?
 
-### Debug Missing Translations
+1. **Register the plugin**: Add `TranslationPlugin::make()` to your Filament panel
+2. **Enable in config**: Set `translation_page.enabled => true`
+3. **Check authorization**: Verify `authorize` callback
+4. **Development mode**: Ensure you're in development environment
+5. **Clear cache**: Run `php artisan config:clear`
 
-Enable debug logging in your configuration:
+### Git Conflicts During Production Deployment?
 
-```php
-'debug' => [
-    'log_missing_translations' => true,
-    'log_fallback_usage' => true,
-],
-```
+**The Issue**: Translation Manager changes create local modifications that conflict with `git pull` during production updates.
 
-This will log missing translations to help you identify what keys need translation.
+**Recommended Solution**: Use Translation Manager only in development.
 
-### Disable for Specific Components
-
-You can disable translation for specific component types:
-
-```php
-'components' => [
-    'actions' => [
-        'enabled' => false, // Disable action translation
-    ],
-],
-```
-
-### Custom Fallback Strategy Not Working?
-
-Ensure your custom strategy is properly configured:
-
-1. **Class exists**: Verify the class implements `FallbackStrategyInterface`
-2. **Correct namespace**: Check the namespace in your configuration
-3. **Config cache clear**: Run `php artisan config:clear` after configuration changes
-4. **Debug logging**: Enable debug to see fallback usage
-
-```php
-// Verify your strategy implements the interface
-class CustomStrategy implements FallbackStrategyInterface
-{
-    public function apply(string $key): string
-    {
-        return $key; // Your logic here
-    }
-}
-```
-
-### Performance Issues?
-
-The package is optimized for performance:
-
-- **Strategy reuse**: Fallback strategy instances are cached and reused within the same request
-- **Lazy evaluation**: Translation is deferred using closures until labels are actually rendered
-- **Efficient caching**: Built-in strategy manager prevents redundant class instantiation
-
-If you experience issues:
-
-1. **Check config**: Ensure Laravel's configuration is loaded properly
-2. **Optimize translation files**: Use JSON format for better performance
-3. **Profile queries**: Use Laravel Telescope to identify bottlenecks
-
-## 🏗️ Architecture
-
-The package uses a clean, extensible architecture:
-
-### Core Components
-
-- **`TranslationServiceProvider`**: Registers global component configurations
-- **`TranslationHelper`**: Handles translation logic with intelligent fallbacks
-- **`FallbackStrategyManager`**: Manages and resolves fallback strategies
-- **Component Traits**: Optional traits for Resources/Pages/Clusters
-
-### Fallback Strategy System
-
-- **`FallbackStrategyInterface`**: Contract for all fallback strategies
-- **Built-in Strategies**: `HumanizeStrategy`, `OriginalStrategy`, `TitleCaseStrategy`
-- **Strategy Resolution**: Automatic class and closure resolution
-- **Performance Optimization**: Strategy instances cached and lazy evaluation with closures
-
-### Global Component Configuration
-
-The package leverages Filament's `Component::configureUsing()` method to automatically apply translations to all components without requiring code changes.
-
-```php
-// Simplified example of how the package works internally
-Field::configureUsing(function (Field $component): void {
-    $component->translateLabel();
-});
+**Alternative for Production Use**: Remove translation files from Git tracking:
+```bash
+echo "lang/*.json" >> .gitignore
+git rm --cached lang/*.json
 ```
 
 ## 📖 Requirements
 
 - **PHP**: 8.2+
+- **Laravel**: 11+
 - **Filament**: 4.0+
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Development Setup
-
-1. Clone the repository
-2. Install dependencies: `composer install`
+1. Fork the repository
+2. Create your feature branch
 3. Run tests: `composer test`
-4. Check code style: `composer pint`
-5. Run static analysis: `composer phpstan`
+4. Submit a pull request
 
 ## 📝 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file.
 
 ## 🙏 Acknowledgements
 
-- **Filament Team**: For creating an amazing admin panel framework
-- **Laravel Team**: For the robust foundation
-- **Community Contributors**: For feedback and suggestions
+- **Filament Team**: For the amazing admin framework
+- **Laravel Team**: For the solid foundation
+- **Community**: For feedback and contributions
 
 ---
 
