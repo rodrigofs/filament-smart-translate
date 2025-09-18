@@ -3,7 +3,6 @@
 [![Tests](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/run-tests.yml)
 [![PHPStan](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/phpstan.yml)
 [![Code Style](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/fix-code-style.yml)
-[![Coverage](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml/badge.svg)](https://github.com/rodrigofs/filament-smart-translate/actions/workflows/test-coverage.yml)
 
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/rodrigofs/filament-smart-translate?style=for-the-badge&logo=packagist&logoColor=white)
