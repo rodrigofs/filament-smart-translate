@@ -25,39 +25,51 @@ it('handles different fallback strategies in component coverage', function () {
 
 it('calculates coverage percentage correctly for partial enabled components', function () {
     Config::set('filament-smart-translate.components', [
-        'resource_labels' => ['enabled' => true],
-        'navigation' => ['enabled' => false],
+        'resources' => ['enabled' => true],
+        'navigations' => ['enabled' => false],
         'actions' => ['enabled' => true],
         'clusters' => ['enabled' => false],
         'pages' => ['enabled' => true],
+        'fields' => ['enabled' => true],
+        'schemas' => ['enabled' => true],
+        'entries' => ['enabled' => true],
+        'columns' => ['enabled' => false],
     ]);
 
     $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
-        ->expectsOutput('    ▓ Active components: 3/5 (60%)');
+        ->expectsOutput('    ▓ Active components: 6/9 (67%)');
 });
 
 it('shows low coverage percentage in red', function () {
     Config::set('filament-smart-translate.components', [
-        'resource_labels' => ['enabled' => false],
-        'navigation' => ['enabled' => false],
+        'resources' => ['enabled' => false],
+        'navigations' => ['enabled' => false],
         'actions' => ['enabled' => true],
         'clusters' => ['enabled' => false],
         'pages' => ['enabled' => false],
+        'fields' => ['enabled' => false],
+        'schemas' => ['enabled' => false],
+        'entries' => ['enabled' => false],
+        'columns' => ['enabled' => false],
     ]);
 
     $this->artisan('filament-smart-translate:status')
         ->assertExitCode(0)
-        ->expectsOutput('    ▓ Active components: 1/5 (20%)');
+        ->expectsOutput('    ▓ Active components: 1/9 (11%)');
 });
 
 it('displays tips when coverage is not 100%', function () {
     Config::set('filament-smart-translate.components', [
-        'resource_labels' => ['enabled' => false],
-        'navigation' => ['enabled' => true],
+        'resources' => ['enabled' => false],
+        'navigations' => ['enabled' => true],
         'actions' => ['enabled' => true],
         'clusters' => ['enabled' => true],
         'pages' => ['enabled' => true],
+        'fields' => ['enabled' => false],
+        'schemas' => ['enabled' => false],
+        'entries' => ['enabled' => false],
+        'columns' => ['enabled' => false],
     ]);
 
     $this->artisan('filament-smart-translate:status')

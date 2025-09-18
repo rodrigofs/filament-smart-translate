@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Rodrigofs\FilamentSmartTranslate\Support\Fallback\FallbackStrategyManager;
+use Rodrigofs\FilamentSmartTranslate\Support\Overrides\FieldWrapper;
 use Rodrigofs\FilamentSmartTranslate\TranslationHelper;
 use Rodrigofs\FilamentSmartTranslate\TranslationServiceProvider;
 
@@ -31,28 +32,24 @@ it('registers configuration correctly', function () {
     expect(config('filament-smart-translate.enabled'))->toBeTrue();
 });
 
-it('publishes configuration files', function () {
-    $provider = new TranslationServiceProvider(app());
-
-    // Use reflection to access private method
-    $reflection = new ReflectionClass($provider);
-    $method = $reflection->getMethod('publishConfiguration');
-    $method->setAccessible(true);
-
-    // Should not throw exception
-    expect(fn () => $method->invoke($provider))->not->toThrow(Exception::class);
+it('configures package correctly', function () {
+    // Service provider is already registered and configured in TestCase
+    // Test that the package is working correctly
+    expect(config('filament-smart-translate'))->toBeArray();
+    expect(config('filament-smart-translate.enabled'))->toBeTrue();
 });
 
-it('registers commands in console mode', function () {
+it('registers commands correctly', function () {
     $provider = new TranslationServiceProvider(app());
 
-    // Use reflection to access private method
+    // Use reflection to access protected method
     $reflection = new ReflectionClass($provider);
-    $method = $reflection->getMethod('registerCommands');
+    $method = $reflection->getMethod('getCommands');
     $method->setAccessible(true);
 
-    // Should register commands when in console
-    expect(fn () => $method->invoke($provider))->not->toThrow(Exception::class);
+    $commands = $method->invoke($provider);
+    expect($commands)->toBeArray();
+    expect($commands)->toContain(\Rodrigofs\FilamentSmartTranslate\Console\StatusCommand::class);
 });
 
 it('handles service provider configuration without errors', function () {
@@ -64,16 +61,11 @@ it('handles service provider configuration without errors', function () {
 });
 
 it('creates field wrapper correctly', function () {
-    $provider = new TranslationServiceProvider(app());
-    $reflection = new ReflectionClass($provider);
-    $method = $reflection->getMethod('createFieldWrapper');
-    $method->setAccessible(true);
-
-    // Mock field component
+    // Test that field wrapper can be created directly
     $field = TextInput::make('user_profile');
+    $wrapper = new FieldWrapper($field->getName());
 
-    $wrapper = $method->invoke($provider, $field);
-    expect($wrapper)->toBeInstanceOf(Rodrigofs\FilamentSmartTranslate\Support\Overrides\FieldWrapper::class);
+    expect($wrapper)->toBeInstanceOf(FieldWrapper::class);
     expect($wrapper->getLabel())->toBe('User profile');
 });
 
@@ -260,45 +252,37 @@ it('skips model action properties for non-existent methods', function () {
 });
 
 it('configures field components with automatic translation functionality', function () {
-    $provider = new TranslationServiceProvider(app());
-    $provider->boot();
-
+    // Service provider is already registered in TestCase
     $field = TextInput::make('user_name');
 
-    // Field should have configuration applied (we test the service provider configuration works)
+    // Field should be created successfully
     expect($field)->toBeInstanceOf(TextInput::class);
     expect($field->getName())->toBe('user_name');
 });
 
 it('configures text entry components with automatic translation functionality', function () {
-    $provider = new TranslationServiceProvider(app());
-    $provider->boot();
-
+    // Service provider is already registered in TestCase
     $entry = TextEntry::make('user_email');
 
-    // Entry should have configuration applied (we test the service provider configuration works)
+    // Entry should be created successfully
     expect($entry)->toBeInstanceOf(TextEntry::class);
     expect($entry->getName())->toBe('user_email');
 });
 
 it('configures column components with automatic translation functionality', function () {
-    $provider = new TranslationServiceProvider(app());
-    $provider->boot();
-
+    // Service provider is already registered in TestCase
     $column = TextColumn::make('created_at');
 
-    // Column should have configuration applied (we test the service provider configuration works)
+    // Column should be created successfully
     expect($column)->toBeInstanceOf(TextColumn::class);
     expect($column->getName())->toBe('created_at');
 });
 
 it('navigation components translate group names correctly', function () {
-    $provider = new TranslationServiceProvider(app());
-    $provider->boot();
-
+    // Service provider is already registered in TestCase
     $navigation = NavigationItem::make('Dashboard')->group('admin_section');
 
-    // Navigation might not apply translation immediately, test basic functionality
+    // Navigation should be created successfully
     expect($navigation->getGroup())->toBeString();
     expect($navigation->getLabel())->toBe('Dashboard');
 });

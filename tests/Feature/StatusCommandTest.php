@@ -24,8 +24,8 @@ it('displays package status when disabled', function () {
 });
 
 it('displays component coverage', function () {
-    Config::set('filament-smart-translate.components.resource_labels.enabled', true);
-    Config::set('filament-smart-translate.components.navigation.enabled', false);
+    Config::set('filament-smart-translate.components.resources.enabled', true);
+    Config::set('filament-smart-translate.components.navigations.enabled', false);
 
     $this->artisan('filament-smart-translate:status')
         ->expectsOutputToContain('✓ Resource Labels')
@@ -34,8 +34,8 @@ it('displays component coverage', function () {
 });
 
 it('displays fallback strategies', function () {
-    Config::set('filament-smart-translate.components.resource_labels.fallback_strategy', 'humanize');
-    Config::set('filament-smart-translate.components.navigation.fallback_strategy', 'title_case');
+    Config::set('filament-smart-translate.components.resources.fallback_strategy', 'humanize');
+    Config::set('filament-smart-translate.components.navigations.fallback_strategy', 'title_case');
 
     $this->artisan('filament-smart-translate:status')
         ->expectsOutputToContain('(humanize)')
@@ -46,7 +46,7 @@ it('displays fallback strategies', function () {
 it('shows coverage summary', function () {
     $this->artisan('filament-smart-translate:status')
         ->expectsOutputToContain('Coverage Summary')
-        ->expectsOutputToContain('5/5')
+        ->expectsOutputToContain('9/9')
         ->assertSuccessful();
 });
 
@@ -63,7 +63,7 @@ it('displays trait candidates section', function () {
 });
 
 it('shows helpful tips for incomplete coverage', function () {
-    Config::set('filament-smart-translate.components.resource_labels.enabled', false);
+    Config::set('filament-smart-translate.components.resources.enabled', false);
 
     $this->artisan('filament-smart-translate:status')
         ->expectsOutputToContain('💡 Tip:')

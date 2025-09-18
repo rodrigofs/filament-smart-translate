@@ -14,6 +14,8 @@ final readonly class TranslationData
 
     /**
      * Create from array
+     *
+     * @param  array<string, string>  $data
      */
     public static function fromArray(array $data): self
     {
@@ -26,6 +28,8 @@ final readonly class TranslationData
 
     /**
      * Convert to array
+     *
+     * @return array<string, string>
      */
     public function toArray(): array
     {
@@ -41,7 +45,7 @@ final readonly class TranslationData
      */
     public function getLength(): int
     {
-        return strlen($this->value);
+        return mb_strlen($this->value);
     }
 
     /**

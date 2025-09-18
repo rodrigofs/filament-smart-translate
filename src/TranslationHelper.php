@@ -37,6 +37,7 @@ final class TranslationHelper
             // Get component configuration safely
             $componentEnabled = Config::get("filament-smart-translate.components.{$component}.enabled", true);
             $fallbackStrategy = Config::get("filament-smart-translate.components.{$component}.fallback_strategy", self::DEFAULT_STRATEGY);
+
             // Fix: Correct logic - if component is disabled, use original strategy
             if (! $componentEnabled) {
                 self::logMissingTranslation($key, $component, self::DEFAULT_STRATEGY);
@@ -44,14 +45,14 @@ final class TranslationHelper
                 return self::applyFallbackSafely($key, self::DEFAULT_STRATEGY);
             }
 
-            // Component is enabled, try to find translation first
-            $translationKey = "{$component}.{$key}";
-            $translation = __($translationKey, $replace, $locale);
-
-            // If translation found (not the same as translation key), return it
-            if ($translation !== $translationKey) {
-                return $translation;
-            }
+            // Try to get translation from Laravel's translator first
+            //            $translationKey = $component !== self::DEFAULT_COMPONENT ? "{$component}.{$key}" : $key;
+            //            $translation = trans($translationKey, $replace, $locale);
+            //
+            //            // If translation was found (not the same as the key), return it
+            //            if ($translation !== $translationKey) {
+            //                return $translation;
+            //            }
 
             // No translation found, use fallback strategy
             self::logMissingTranslation($key, $component, $fallbackStrategy);

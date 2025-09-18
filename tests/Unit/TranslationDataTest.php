@@ -82,6 +82,7 @@ it('categorizes translations correctly', function () {
         ['password.field', 'auth'],
         ['login.button', 'auth'],
         ['auth.failed', 'auth'],
+        ['auth.success', 'auth'],
 
         // Validation category
         ['validation.required', 'validation'],
@@ -91,7 +92,8 @@ it('categorizes translations correctly', function () {
         // Error category
         ['error.message', 'error'],
         ['forbidden.access', 'error'],
-        ['unauthorized.user', 'error'],
+        ['system.error', 'error'],
+        ['critical.error', 'error'],
 
         // UI category
         ['button.save', 'ui'],

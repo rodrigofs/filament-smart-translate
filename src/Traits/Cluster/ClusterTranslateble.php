@@ -13,6 +13,12 @@ trait ClusterTranslateble
 {
     public static function getClusterBreadcrumb(): ?string
     {
-        return __(TranslationHelper::translateWithFallback(parent::getClusterBreadcrumb(), 'clusters'));
+        $breadcrumb = parent::getClusterBreadcrumb();
+
+        if ($breadcrumb === null) {
+            return null;
+        }
+
+        return TranslationHelper::translateWithFallback($breadcrumb, 'clusters');
     }
 }
