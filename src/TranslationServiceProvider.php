@@ -12,6 +12,7 @@ use Filament\Forms\Components\Field;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Navigation\NavigationItem;
 use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -115,6 +116,7 @@ final class TranslationServiceProvider extends PackageServiceProvider
         Component::configureUsing(function (Component $component) use ($provider): void {
             match (true) {
                 $component instanceof Section => $provider->configureSectionComponent($component),
+                $component instanceof Fieldset => $provider->configureFieldsetComponent($component),
                 $component instanceof Tabs => $provider->configureTabsComponent($component),
                 $component instanceof Tab => $provider->configureTabComponent($component),
                 default => null,
@@ -159,6 +161,7 @@ final class TranslationServiceProvider extends PackageServiceProvider
     private function configureNavigation(): void
     {
         NavigationItem::configureUsing(function (NavigationItem $item): void {
+
             if ($group = $item->getGroup()) {
                 $item->group(TranslationHelper::translateWithFallback($group, 'navigations'));
             }
@@ -167,6 +170,8 @@ final class TranslationServiceProvider extends PackageServiceProvider
 
     private function configureSectionComponent(Section $section): void
     {
+        $section->translateLabel();
+
         if ($heading = $section->getHeading()) {
             $section->heading(TranslationHelper::translateWithFallback($heading, 'schemas'));
         }
@@ -176,8 +181,18 @@ final class TranslationServiceProvider extends PackageServiceProvider
         }
     }
 
+    private function configureFieldsetComponent(Fieldset $section): void
+    {
+        $section->translateLabel();
+
+        if ($label = $section->getLabel()) {
+            $section->label(TranslationHelper::translateWithFallback($label, 'schemas'));
+        }
+    }
+
     private function configureTabsComponent(Tabs $tabs): void
     {
+        $tabs->translateLabel();
         if ($label = $tabs->getLabel()) {
             $tabs->label(TranslationHelper::translateWithFallback($label, 'schemas'));
         }
@@ -185,6 +200,7 @@ final class TranslationServiceProvider extends PackageServiceProvider
 
     private function configureTabComponent(Tab $tab): void
     {
+        $tab->translateLabel();
         if ($label = $tab->getLabel()) {
             $tab->label(TranslationHelper::translateWithFallback($label, 'schemas'));
         }
