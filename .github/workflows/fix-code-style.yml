@@ -31,7 +31,7 @@ jobs:
         run: vendor/bin/pint
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v7
         if: github.event_name == 'push'
         with:
           commit_message: 'fix: code style'
